@@ -82,26 +82,37 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/login']);
     }
 
-    async scanQRCode() {
+    scanQRCode() {
         this.isScanning.set(true);
         this.scannerError.set('');
         this.scannerSuccess.set('');
 
-        try {
-            const videoElement = document.getElementById('cameraPreview') as HTMLVideoElement;
+        // Aguarda o próximo tick do event loop para o Angular renderizar
+        // o bloco @if(isScanning()) e o elemento <video> existir no DOM
+        setTimeout(async () => {
+            try {
+                const videoElement = document.getElementById('cameraPreview') as HTMLVideoElement;
 
-            // Starts continuous scanning from the default selected camera
-            this.scannerControls = await this.codeReader.decodeFromVideoDevice(undefined, videoElement, (result, error, controls) => {
-                if (result) {
-                    // Parar leitura instantaneamente para não flodar o backend
-                    controls.stop();
-                    this.handleScannedToken(result.getText());
+                if (!videoElement) {
+                    this.scannerError.set("Erro interno: elemento de vídeo não encontrado.");
+                    this.isScanning.set(false);
+                    return;
                 }
-            });
-        } catch (err) {
-            console.error("Erro ao iniciar câmera: ", err);
-            this.scannerError.set("Não foi possível acessar a câmera. Verifique as permissões.");
-        }
+
+                // Starts continuous scanning from the default selected camera
+                this.scannerControls = await this.codeReader.decodeFromVideoDevice(undefined, videoElement, (result, _error, controls) => {
+                    if (result) {
+                        // Parar leitura instantaneamente para não flodar o backend
+                        controls.stop();
+                        this.handleScannedToken(result.getText());
+                    }
+                });
+            } catch (err) {
+                console.error("Erro ao iniciar câmera: ", err);
+                this.scannerError.set("Não foi possível acessar a câmera. Verifique as permissões do navegador.");
+                this.isScanning.set(false);
+            }
+        }, 0);
     }
 
     stopScanner() {
