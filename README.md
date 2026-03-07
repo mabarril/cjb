@@ -1,59 +1,105 @@
-# Frontend
+# Sistema de Controle de Presença — Coral Jovem de Brasília
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
+Sistema web para agilizar o registro de presença em ensaios e eventos do Coral Jovem de Brasília (CJB), utilizando QR Codes dinâmicos projetados em telão.
 
-## Development server
+## 🚀 Tecnologias
 
-To start a local development server, run:
+| Camada | Tecnologia |
+|---|---|
+| Frontend | Angular 20 (Signals, Control Flow, Standalone Components) |
+| Estilização | Tailwind CSS (Mobile-First, Dark/Light Mode) |
+| Banco de Dados | Supabase — PostgreSQL + RLS |
+| Autenticação | Supabase Auth |
+| Realtime | Supabase Realtime (WebSocket) |
+
+## ✨ Funcionalidades
+
+- **Registro e Aprovação de Coristas:** novos membros solicitam acesso pelo celular e aguardam aprovação da diretoria.
+- **Painel Administrativo:** gestão de membros, aprovação de cadastros e criação de sessões de ensaio.
+- **Geração de QR Code Dinâmico:** a diretoria gera um token único por ensaio, exibido em telão via tela de projeção.
+- **Leitura de Presença Mobile:** coristas aprovados escaneiam o QR Code e registram a presença direto pelo smartphone.
+- **Monitoramento em Tempo Real:** o painel administrativo é atualizado instantaneamente via WebSocket a cada nova presença registrada.
+
+## 📁 Estrutura de Documentação
+
+```
+docs/
+├── planejamento.md          # Arquitetura, modelagem de dados e padrões de projeto
+├── tasks.md                 # Controle de status das atividades
+├── supabase_schema.sql      # Script de criação das tabelas no Supabase
+├── supabase_trigger.sql     # Trigger para criação automática de perfis
+└── hu-001-admin-access.md   # HU: Acesso ao Painel Administrativo (BDD)
+```
+
+## 📐 Estrutura do Projeto Angular
+
+```
+src/
+└── app/
+    ├── core/           # Serviços singleton, Guards de autenticação e roles
+    ├── shared/         # Componentes reutilizáveis (UI, layouts, utils)
+    └── features/
+        ├── auth/       # Login e Registro
+        ├── corista/    # Dashboard e Scanner de QR Code
+        ├── admin/      # Painel do Regente / Aprovação de Coristas
+        └── projecao/   # Tela de telão com QR Code dinâmico
+```
+
+## 🧑‍💻 Como Rodar o Projeto
+
+### Pré-requisitos
+
+- Node.js 20+
+- Angular CLI (opcional, mas recomendado)
+- Projeto configurado no [Supabase](https://supabase.com/)
+
+### Instalação
+
+```bash
+# 1. Clone o repositório
+git clone <URL_DO_REPOSITORIO>
+cd cjb
+
+# 2. Instale as dependências
+npm install
+
+# 3. Configure as variáveis de ambiente do Supabase
+# Edite o arquivo src/environments/environment.ts com suas chaves
+```
+
+### Executar em modo desenvolvimento
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Acesse em `http://localhost:4200`. A aplicação recarrega automaticamente ao salvar arquivos.
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### Build para produção
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Os artefatos serão gerados na pasta `dist/`.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### Testes
 
 ```bash
+# Testes unitários (Vitest)
 ng test
-```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
+# Testes end-to-end
 ng e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🔒 Configuração do Banco de Dados (Supabase)
 
-## Additional Resources
+Execute os scripts SQL na ordem indicada no painel SQL do seu projeto Supabase:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+1. `docs/supabase_schema.sql` — cria as tabelas `profiles`, `sessions` e `attendances` com RLS configurado.
+2. `docs/supabase_trigger.sql` — cria o trigger para popular a tabela `profiles` automaticamente ao cadastrar um novo usuário.
+
+## 📝 Licença
+
+Este projeto é de uso exclusivo do Coral Jovem de Brasília.

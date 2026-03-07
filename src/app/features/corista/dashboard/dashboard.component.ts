@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, signal, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PresencaService } from '../../../core/presenca/presenca.service';
 import { SupabaseService, Profile } from '../../../core/supabase/supabase.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
 
 @Component({
@@ -17,8 +17,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private presencaService = inject(PresencaService);
     private authService = inject(AuthService);
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
 
     profile = signal<Profile | null>(null);
+    isAdmin = computed(() => this.profile()?.role === 'admin');
+    accessDenied = signal(false);
     isLoading = signal(true);
 
     // Scanner State
@@ -44,6 +47,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        // Check for access denied redirect from admin guard
+        this.route.queryParams.subscribe(params => {
+            if (params['access'] === 'denied') {
+                this.accessDenied.set(true);
+                setTimeout(() => this.accessDenied.set(false), 4000);
+                // Clean the URL without triggering navigation
+                this.router.navigate([], { queryParams: {}, replaceUrl: true });
+            }
+        });
+
         this.supabaseService.profile$.subscribe(prof => {
             if (prof) {
                 if (prof.status === 'pending' || prof.status === 'rejected') {
@@ -54,6 +67,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 }
             }
         });
+    }
+
+    goToAdmin() {
+        this.router.navigate(['/admin']);
     }
 
     ngOnDestroy() {
