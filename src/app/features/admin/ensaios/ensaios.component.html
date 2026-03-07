@@ -1,0 +1,231 @@
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-24 transition-colors duration-300">
+
+    <!-- Toasts -->
+    @if(successMessage()) {
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm animate-fade-in-down">
+        <div class="bg-emerald-500 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+            <span class="material-symbols-outlined">check_circle</span>
+            <p class="text-sm font-medium">{{ successMessage() }}</p>
+        </div>
+    </div>
+    }
+    @if(errorMessage()) {
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm animate-fade-in-down">
+        <div class="bg-rose-500 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+            <span class="material-symbols-outlined">error</span>
+            <p class="text-sm font-medium">{{ errorMessage() }}</p>
+        </div>
+    </div>
+    }
+
+    <!-- Header -->
+    <header class="bg-violet-700 dark:bg-slate-900 text-white rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div
+            class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
+        </div>
+        <div class="px-6 pt-12 pb-8 relative z-10 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button (click)="goBack()"
+                    class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20 active:scale-95 transition-transform">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Gerenciar Ensaios</h1>
+                    <p class="text-violet-200 text-sm">{{ sessions().length }} ensaio(s) registrado(s)</p>
+                </div>
+            </div>
+            <button (click)="openCreate()"
+                class="flex items-center gap-2 bg-white text-violet-700 font-bold px-4 py-2 rounded-xl shadow active:scale-95 transition-transform text-sm">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                Novo
+            </button>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    @if(isLoading()) {
+    <div class="flex justify-center items-center py-24">
+        <div class="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    }
+
+    <!-- Sessions List -->
+    @if(!isLoading()) {
+    <main class="px-4 py-6 space-y-4 max-w-2xl mx-auto">
+
+        @if(sessions().length === 0) {
+        <div class="text-center py-20 text-slate-400">
+            <span class="material-symbols-outlined text-6xl mb-3 block">event_note</span>
+            <p class="text-lg font-medium">Nenhum ensaio cadastrado</p>
+            <p class="text-sm">Clique em "+ Novo" para criar o primeiro.</p>
+        </div>
+        }
+
+        @for(session of sessions(); track session.id) {
+        <div
+            class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 space-y-4">
+
+            <!-- Session header -->
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h2 class="font-bold text-slate-900 dark:text-slate-100 text-base leading-tight">{{ session.title
+                        }}</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined text-[16px]">location_on</span>
+                        {{ session.location }}
+                    </p>
+                </div>
+                <!-- Status Badge -->
+                <span class="shrink-0 text-xs font-bold px-3 py-1 rounded-full" [ngClass]="{
+                        'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': session.status === 'agendado',
+                        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': session.status === 'ativo',
+                        'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400': session.status === 'finalizado'
+                    }">
+                    {{ statusLabel(session.status) }}
+                </span>
+            </div>
+
+            <!-- Date/time info -->
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                    <p class="text-slate-400 text-xs font-medium uppercase tracking-wide mb-1">Início</p>
+                    <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        {{ session.scheduled_at | date:'dd/MM/yy, HH:mm' }}
+                    </p>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                    <p class="text-slate-400 text-xs font-medium uppercase tracking-wide mb-1">Término</p>
+                    <p class="font-semibold text-slate-800 dark:text-slate-200">
+                        {{ session.end_at ? (session.end_at | date:'dd/MM/yy, HH:mm') : '—' }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 flex-wrap">
+                <!-- Edit -->
+                <button (click)="openEdit(session)"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                    Editar
+                </button>
+
+                <!-- Activate -->
+                @if(session.status === 'agendado') {
+                <button (click)="activate(session)"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-sm font-medium hover:bg-emerald-200 transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+                    Ativar
+                </button>
+                }
+
+                <!-- Finalize -->
+                @if(session.status === 'ativo') {
+                <button (click)="finalize(session)"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 text-sm font-medium hover:bg-rose-200 transition-colors active:scale-95">
+                    <span class="material-symbols-outlined text-[18px]">stop</span>
+                    Finalizar
+                </button>
+                }
+
+                <!-- Download QR -->
+                <button (click)="downloadQR(session)"
+                    class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 text-sm font-medium hover:bg-violet-200 transition-colors active:scale-95 ml-auto">
+                    <span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+                    Baixar QR (Full HD)
+                </button>
+            </div>
+        </div>
+        }
+    </main>
+    }
+
+    <!-- Modal -->
+    @if(showModal()) {
+    <div
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in p-4">
+        <div
+            class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">
+                    {{ editingSession() ? 'Editar Ensaio' : 'Novo Ensaio' }}
+                </h2>
+                <button (click)="closeModal()"
+                    class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <form [formGroup]="form" (ngSubmit)="save()" class="p-6 space-y-5">
+
+                <!-- Title -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Nome do Ensaio *
+                    </label>
+                    <input formControlName="title" type="text" placeholder="Ensaio Geral"
+                        class="w-full px-4 py-3 rounded-xl border text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        [ngClass]="isInvalid('title') ? 'border-rose-400' : 'border-slate-200 dark:border-slate-700'">
+                    @if(isInvalid('title')) {
+                    <p class="text-xs text-rose-500 mt-1">Nome é obrigatório (mín. 3 caracteres).</p>
+                    }
+                </div>
+
+                <!-- Location -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                        Local *
+                    </label>
+                    <input formControlName="location" type="text" placeholder="IBS - Asa Sul"
+                        class="w-full px-4 py-3 rounded-xl border text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800 placeholder-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        [ngClass]="isInvalid('location') ? 'border-rose-400' : 'border-slate-200 dark:border-slate-700'">
+                    @if(isInvalid('location')) {
+                    <p class="text-xs text-rose-500 mt-1">Local é obrigatório.</p>
+                    }
+                </div>
+
+                <!-- Date/Time grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Start -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                            Início *
+                        </label>
+                        <input formControlName="scheduled_at" type="datetime-local"
+                            class="w-full px-4 py-3 rounded-xl border text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
+                            [ngClass]="isInvalid('scheduled_at') ? 'border-rose-400' : 'border-slate-200 dark:border-slate-700'">
+                        @if(isInvalid('scheduled_at')) {
+                        <p class="text-xs text-rose-500 mt-1">Data de início obrigatória.</p>
+                        }
+                    </div>
+
+                    <!-- End -->
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                            Término
+                        </label>
+                        <input formControlName="end_at" type="datetime-local"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500">
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" [disabled]="isSaving()"
+                    class="w-full bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-violet-500/30 active:scale-95 flex items-center justify-center gap-2">
+                    @if(isSaving()) {
+                    <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Salvando...
+                    } @else {
+                    <span class="material-symbols-outlined text-[20px]">save</span>
+                    {{ editingSession() ? 'Salvar alterações' : 'Criar ensaio' }}
+                    }
+                </button>
+            </form>
+        </div>
+    </div>
+    }
+
+</div>

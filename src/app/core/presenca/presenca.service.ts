@@ -6,9 +6,18 @@ export interface Session {
     id: string;
     title: string;
     scheduled_at: string;
+    end_at?: string | null;
     location: string;
     status: 'agendado' | 'ativo' | 'finalizado';
     qr_token: string;
+    created_at?: string;
+}
+
+export interface SessionFormData {
+    title: string;
+    location: string;
+    scheduled_at: string;
+    end_at?: string | null;
 }
 
 @Injectable({
@@ -16,6 +25,97 @@ export interface Session {
 })
 export class PresencaService {
     private supabaseService = inject(SupabaseService);
+
+    // --- CRUD de Ensaios ---
+
+    getAllSessions(): Observable<Session[]> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('*')
+                .order('scheduled_at', { ascending: false })
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return res.data as Session[];
+                })
+        );
+    }
+
+    createSession(data: SessionFormData): Observable<Session> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .insert({
+                    title: data.title,
+                    location: data.location,
+                    scheduled_at: data.scheduled_at,
+                    end_at: data.end_at || null,
+                    status: 'agendado',
+                    qr_token: crypto.randomUUID()
+                })
+                .select()
+                .single()
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return res.data as Session;
+                })
+        );
+    }
+
+    updateSession(id: string, data: Partial<SessionFormData>): Observable<Session> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .update({
+                    title: data.title,
+                    location: data.location,
+                    scheduled_at: data.scheduled_at,
+                    end_at: data.end_at || null,
+                })
+                .eq('id', id)
+                .select()
+                .single()
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return res.data as Session;
+                })
+        );
+    }
+
+    activateSession(id: string): Observable<Session> {
+        return from(
+            // 1. Finaliza qualquer sessão ativa anterior
+            this.supabaseService.client
+                .from('sessions')
+                .update({ status: 'finalizado' })
+                .eq('status', 'ativo')
+                .then(async () => {
+                    // 2. Ativa a sessão escolhida
+                    const res = await this.supabaseService.client
+                        .from('sessions')
+                        .update({ status: 'ativo' })
+                        .eq('id', id)
+                        .select()
+                        .single();
+                    if (res.error) throw res.error;
+                    return res.data as Session;
+                })
+        );
+    }
+
+    finalizeSession(id: string): Observable<void> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .update({ status: 'finalizado' })
+                .eq('id', id)
+                .then(res => {
+                    if (res.error) throw res.error;
+                })
+        );
+    }
+
+
 
     // --- Funções do Regente/Admin ---
 

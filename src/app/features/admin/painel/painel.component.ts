@@ -87,6 +87,10 @@ export class PainelComponent implements OnInit {
         });
     }
 
+    goToEnsaios() {
+        this.router.navigate(['/admin/ensaios']);
+    }
+
     async logout() {
         await this.authService.signOut().toPromise();
         this.router.navigate(['/login']);
