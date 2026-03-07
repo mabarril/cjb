@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, from, Observable } from 'rxjs';
 
 export interface Profile {
     id: string;
@@ -57,12 +57,12 @@ export class SupabaseService {
         return this.currentProfile.asObservable();
     }
 
-    private async loadProfile(userId: string) {
+    async loadProfile(userId: string) {
         const { data, error } = await this.supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .maybeSingle(); // Use maybeSingle() ao invés de single() para não lançar exceção de 0 rows
+            .maybeSingle();
 
         if (error) {
             console.error("Erro ao carregar profile:", error);
@@ -71,5 +71,42 @@ export class SupabaseService {
         } else {
             console.warn("Perfil não encontrado na tabela 'profiles' para este usuário.");
         }
+    }
+
+    updateProfile(userId: string, updates: Partial<Profile>): Observable<Profile> {
+        return from(
+            this.supabase
+                .from('profiles')
+                .update(updates)
+                .eq('id', userId)
+                .select()
+                .single()
+                .then(res => {
+                    if (res.error) throw res.error;
+                    this.currentProfile.next(res.data as Profile);
+                    return res.data as Profile;
+                })
+        );
+    }
+
+    uploadAvatar(userId: string, file: File): Observable<string> {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${userId}-${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        return from(
+            this.supabase.storage
+                .from('avatars')
+                .upload(filePath, file)
+                .then(async (res) => {
+                    if (res.error) throw res.error;
+
+                    const { data } = this.supabase.storage
+                        .from('avatars')
+                        .getPublicUrl(filePath);
+
+                    return data.publicUrl;
+                })
+        );
     }
 }

@@ -23,9 +23,11 @@
   - [x] Fluxo de Autenticação
   - [x] Fluxo de Registro do Corista (Sign Up)
   - [x] Aprovação de Coristas Pendentes (Painel Admin)
-  - [x] Geração dinâmica de QR Code no Painel Admin
+  - [x] Geração dinâmica de QR Code no Painel Admin (Proporção 16:9)
   - [x] Leitura e validação de presença do lado do Corista
   - [x] Atualização em tempo real do Dashboard (Supabase Realtime)
+  - [x] Inteligência de Visibilidade do Scanner (FAB Condicional)
+  - [x] Navegação Administrativa e Gestão por Cards
 - [x] Verificação e Documentação
   - [x] Testes de validação de fluxo
   - [x] Registro de documentação técnica em `/docs`

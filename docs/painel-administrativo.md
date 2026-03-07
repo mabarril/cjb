@@ -16,9 +16,10 @@ O Painel Administrativo é o centro de comando para os regentes e diretores do c
   - `selectedStatus`: Define qual lista de ensaios exibir.
   - `selectedSession`: Define qual lista de chamada detalhar.
   - `attendees`: Lista reativa de coristas presentes na sessão selecionada.
-- **Navegação:**
-  - Botão "Voltar ao Dashboard" para o admin retornar à visão de corista.
-  - Card de "Gerenciar Ensaios" que leva à tela de CRUD.
+- **Navegação & Gestão:**
+  - **Botão de Voltar:** Localizado no cabeçalho, permite retornar ao Dashboard de Corista.
+  - **Cards de Gestão:** Área dedicada para atalhos do sistema (Gerenciar Ensaios, Gestão de Coristas). Substitui o antigo ícone de engrenagem.
+  - **Logout:** Botão de saída destacado em vermelho no cabeçalho.
 
 ## Segurança
 - Protegido por `AuthGuard` e `AdminGuard`.

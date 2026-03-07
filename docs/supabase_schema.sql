@@ -127,3 +127,23 @@ CREATE POLICY "Admins can manage attendances"
 alter publication supabase_realtime add table public.sessions;
 alter publication supabase_realtime add table public.attendances;
 alter publication supabase_realtime add table public.profiles;
+
+-- 8. Storage Configuration (Avatars)
+-- Create the bucket for avatars
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('avatars', 'avatars', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+-- Policy to allow public access to see avatars
+CREATE POLICY "Avatares públicos" ON storage.objects
+FOR SELECT TO authenticated USING (bucket_id = 'avatars');
+
+-- Policy to allow users to upload their own avatars
+-- The file name starts with the user ID or matches the user ID pattern
+CREATE POLICY "Usuários podem subir seus próprios avatares" ON storage.objects
+FOR INSERT TO authenticated 
+WITH CHECK (
+  bucket_id = 'avatars' AND 
+  (storage.foldername(name))[1] = auth.uid()::text OR 
+  name LIKE auth.uid()::text || '-%'
+);

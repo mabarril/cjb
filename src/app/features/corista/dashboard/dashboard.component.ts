@@ -139,6 +139,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/admin']);
     }
 
+    goToProfile() {
+        this.router.navigate(['/perfil']);
+    }
+
     ngOnDestroy() {
         this.stopScanner();
         // Unsubscribe from Realtime channels to avoid memory leaks

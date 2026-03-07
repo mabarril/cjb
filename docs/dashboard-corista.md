@@ -19,4 +19,8 @@ Este componente é a tela principal para o corista realizar o check-in nos ensai
 ## UI/UX
 - **Skeleton Loaders:** Exibidos durante o carregamento inicial dos dados.
 - **Feedback Visual:** Toasts e mensagens de sucesso/erro após o scan do QR Code.
-- **Acessibilidade:** O acesso ao scanner é feito exclusivamente pelo **Botão Flutuante (FAB)** ou pela **Navegação Inferior**, mantendo o dashboard principal focado apenas em estatísticas e histórico.
+- **Acessibilidade Inteligente:** O acesso ao scanner é feito exclusivamente pelo **Botão Flutuante (FAB)**.
+- **Visibilidade Condicional:** Por questões de limpeza visual e lógica de processo, o botão de scanner só aparece no dashboard se:
+  1. Houver um ensaio com status **'Ativo'** no sistema.
+  2. O corista logado **ainda não tiver registrado presença** para este ensaio específico.
+- **Real-time:** A visibilidade do botão é controlada em tempo real via Supabase Realtime (tabelas `sessions` e `attendances`).

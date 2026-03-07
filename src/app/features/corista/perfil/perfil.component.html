@@ -1,0 +1,147 @@
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-12 transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-primary dark:bg-slate-900 text-white rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div
+            class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
+        </div>
+        <div class="px-6 pt-12 pb-8 relative z-10 flex items-center gap-4">
+            <button (click)="goBack()"
+                class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-all hover:bg-white/20">
+                <span class="material-symbols-outlined text-white text-[20px]">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold tracking-tight">Meu Perfil</h1>
+        </div>
+    </header>
+
+    <main class="px-6 -mt-6 relative z-20 max-w-lg mx-auto">
+        <!-- Profile Card -->
+        <div
+            class="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-slate-100 dark:border-slate-800 space-y-8">
+
+            <!-- Avatar Upload Section -->
+            <div class="flex flex-col items-center gap-4">
+                <div class="relative group">
+                    <div
+                        class="w-32 h-32 rounded-full border-4 border-slate-50 dark:border-slate-800 overflow-hidden shadow-inner bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        @if (previewUrl) {
+                        <img [src]="previewUrl" class="w-full h-full object-cover" alt="Avatar">
+                        } @else {
+                        <span class="material-symbols-outlined text-5xl text-slate-300">person</span>
+                        }
+                    </div>
+                    <label for="avatar-input"
+                        class="absolute bottom-1 right-1 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+                        <input type="file" id="avatar-input" class="hidden" (change)="onFileSelected($event)"
+                            accept="image/*">
+                    </label>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Toque na câmera para alterar sua foto</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <div class="space-y-6">
+                <!-- Nome Completo -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nome
+                        Completo</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">badge</span>
+                        <input type="text" [(ngModel)]="fullName"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="Seu nome completo">
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nome
+                        de Usuário (Username)</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">alternate_email</span>
+                        <input type="text" [(ngModel)]="username"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="ex: joao_silva">
+                    </div>
+                </div>
+
+                <!-- Naipe Selection -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Naipe
+                        / Voz</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">music_note</span>
+                        <select [(ngModel)]="voicePart"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary/50 transition-all outline-none appearance-none">
+                            <option [ngValue]="null" disabled>Selecione seu naipe</option>
+                            <option value="Soprano">Soprano</option>
+                            <option value="Contralto">Contralto</option>
+                            <option value="Tenor">Tenor</option>
+                            <option value="Baixo">Baixo</option>
+                            <option value="Regência">Regência</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            @if (uploadError()) {
+            <div
+                class="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400 animate-shake">
+                <span class="material-symbols-outlined">error</span>
+                <p class="text-xs font-medium">{{ uploadError() }}</p>
+            </div>
+            }
+
+            <!-- Submit Button -->
+            <button (click)="saveChanges()" [disabled]="isSaving()"
+                class="w-full bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-primary/30 active:scale-95 flex items-center justify-center gap-2 group">
+                @if (isSaving()) {
+                <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Salvando...
+                } @else {
+                <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">save</span>
+                Salvar Alterações
+                }
+            </button>
+
+            <button (click)="goBack()" [disabled]="isSaving()"
+                class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold py-4 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95">
+                Cancelar
+            </button>
+
+        </div>
+    </main>
+</div>
+
+<style>
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-4px);
+        }
+
+        75% {
+            transform: translateX(4px);
+        }
+    }
+
+    .animate-shake {
+        animation: shake 0.2s ease-in-out 0s 2;
+    }
+</style>
