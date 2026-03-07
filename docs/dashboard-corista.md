@@ -19,4 +19,4 @@ Este componente é a tela principal para o corista realizar o check-in nos ensai
 ## UI/UX
 - **Skeleton Loaders:** Exibidos durante o carregamento inicial dos dados.
 - **Feedback Visual:** Toasts e mensagens de sucesso/erro após o scan do QR Code.
-- **Acessibilidade:** Botão flutuante para scan em dispositivos móveis.
+- **Acessibilidade:** O acesso ao scanner é feito exclusivamente pelo **Botão Flutuante (FAB)** ou pela **Navegação Inferior**, mantendo o dashboard principal focado apenas em estatísticas e histórico.

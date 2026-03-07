@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PresencaService, AttendanceWithSession } from '../../../core/presenca/presenca.service';
+import { PresencaService, AttendanceWithSession, Session } from '../../../core/presenca/presenca.service';
 import { SupabaseService, Profile } from '../../../core/supabase/supabase.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -28,11 +28,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Real attendance data
     attendances = signal<AttendanceWithSession[]>([]);
+    activeSession = signal<Session | null>(null);
 
     // Computed stats from real data
     presencas = computed(() => this.attendances().filter(a => a.status === 'presente').length);
     faltas = computed(() => this.attendances().filter(a => a.status !== 'presente').length);
     recentAttendances = computed(() => this.attendances().slice(0, 5));
+
+    // Intelligence: Show scanner only if there is an active session AND user is not present in it
+    showScannerButton = computed(() => {
+        const session = this.activeSession();
+        if (!session) return false;
+
+        // Check if user already has an attendance for this specific active session
+        const alreadyPresent = this.attendances().some(a => a.session?.id === session.id);
+        return !alreadyPresent;
+    });
 
     frequencia = computed(() => {
         const total = this.presencas() + this.faltas();
@@ -50,6 +61,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private codeReader = new BrowserQRCodeReader();
     private scannerControls: IScannerControls | null = null;
     private realtimeChannel: RealtimeChannel | null = null;
+    private sessionChannel: RealtimeChannel | null = null;
 
     ngOnInit() {
         // Check for access denied redirect from admin guard
@@ -70,7 +82,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.isLoading.set(false);
                     // Load real data and subscribe to realtime
                     this.loadAttendances(prof.id);
+                    this.loadActiveSession();
                     this.subscribeToAttendances(prof.id);
+                    this.subscribeToSessions();
                 }
             }
         });
@@ -90,11 +104,35 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
+    private loadActiveSession() {
+        this.presencaService.getActiveSession().subscribe(session => {
+            this.activeSession.set(session);
+        });
+    }
+
     private subscribeToAttendances(userId: string) {
         this.realtimeChannel = this.presencaService.subscribeToUserAttendances(userId, () => {
             // Reload data when any change arrives via Realtime
             this.loadAttendances(userId);
         });
+    }
+
+    private subscribeToSessions() {
+        // Listen for session status changes (activation/finalization)
+        this.sessionChannel = this.supabaseService.client
+            .channel('sessions_status')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'sessions'
+                },
+                () => {
+                    this.loadActiveSession();
+                }
+            )
+            .subscribe();
     }
 
     goToAdmin() {
@@ -103,9 +141,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.stopScanner();
-        // Unsubscribe from Realtime channel to avoid memory leaks
+        // Unsubscribe from Realtime channels to avoid memory leaks
         if (this.realtimeChannel) {
             this.supabaseService.client.removeChannel(this.realtimeChannel);
+        }
+        if (this.sessionChannel) {
+            this.supabaseService.client.removeChannel(this.sessionChannel);
         }
     }
 

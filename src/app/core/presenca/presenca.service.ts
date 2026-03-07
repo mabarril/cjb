@@ -26,6 +26,7 @@ export interface AttendanceWithSession {
     scanned_at: string;
     status: 'presente' | 'ausente' | 'atrasado';
     session: {
+        id: string;
         title: string;
         scheduled_at: string;
     } | null;
@@ -236,7 +237,7 @@ export class PresencaService {
                     id,
                     scanned_at,
                     status,
-                    session:sessions ( title, scheduled_at )
+                    session:sessions ( id, title, scheduled_at )
                 `)
                 .eq('user_id', userId)
                 .order('scanned_at', { ascending: false })
