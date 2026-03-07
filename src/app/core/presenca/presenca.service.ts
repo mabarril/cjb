@@ -31,6 +31,17 @@ export interface AttendanceWithSession {
     } | null;
 }
 
+export interface AttendanceWithProfile {
+    id: string;
+    scanned_at: string;
+    status: 'presente' | 'ausente' | 'atrasado';
+    profile: {
+        username: string;
+        full_name: string;
+        voice_part: string;
+    } | null;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -254,5 +265,49 @@ export class PresencaService {
                 () => callback()
             )
             .subscribe();
+    }
+
+    getSessionAttendees(sessionId: string): Observable<AttendanceWithProfile[]> {
+        return from(
+            this.supabaseService.client
+                .from('attendances')
+                .select(`
+                    id,
+                    scanned_at,
+                    status,
+                    profile:profiles ( username, full_name, voice_part )
+                `)
+                .eq('session_id', sessionId)
+                .order('scanned_at', { ascending: false })
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return (res.data as any[]).map(row => ({
+                        ...row,
+                        profile: Array.isArray(row.profile) ? row.profile[0] ?? null : row.profile
+                    })) as AttendanceWithProfile[];
+                })
+        );
+    }
+
+    getSessionsCountByStatus(): Observable<Record<string, number>> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('status')
+                .then(res => {
+                    if (res.error) throw res.error;
+                    const counts: Record<string, number> = {
+                        agendado: 0,
+                        ativo: 0,
+                        finalizado: 0
+                    };
+                    res.data.forEach((s: any) => {
+                        if (counts[s.status] !== undefined) {
+                            counts[s.status]++;
+                        }
+                    });
+                    return counts;
+                })
+        );
     }
 }

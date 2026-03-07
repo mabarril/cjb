@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS public.sessions (
     scheduled_at TIMESTAMPTZ NOT NULL,
     location TEXT NOT NULL,
     status session_status_type DEFAULT 'agendado',
+    end_at TIMESTAMPTZ, -- Optional end time for the rehearsal
     qr_token TEXT UNIQUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()

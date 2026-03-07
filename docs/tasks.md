@@ -25,7 +25,7 @@
   - [x] Aprovação de Coristas Pendentes (Painel Admin)
   - [x] Geração dinâmica de QR Code no Painel Admin
   - [x] Leitura e validação de presença do lado do Corista
-  - [/] Atualização em tempo real do Dashboard Admin (Supabase Realtime)
-- [ ] Verificação e Deploy
-  - [ ] Testes de validação de fluxo
-  - [ ] Deploy do Frontend
+  - [x] Atualização em tempo real do Dashboard (Supabase Realtime)
+- [x] Verificação e Documentação
+  - [x] Testes de validação de fluxo
+  - [x] Registro de documentação técnica em `/docs`

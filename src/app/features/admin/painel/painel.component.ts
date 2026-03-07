@@ -1,11 +1,10 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { AdminService } from '../../../core/admin/admin.service';
 import { Profile, SupabaseService } from '../../../core/supabase/supabase.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-
-import { PresencaService } from '../../../core/presenca/presenca.service';
+import { PresencaService, Session, AttendanceWithProfile } from '../../../core/presenca/presenca.service';
 
 @Component({
     selector: 'app-painel',
@@ -22,7 +21,27 @@ export class PainelComponent implements OnInit {
 
     pendingCoristas = signal<Profile[]>([]);
     isLoading = signal(true);
-    isGeneratingQR = signal(false);
+
+    // Status counts
+    counts = signal<Record<string, number>>({
+        agendado: 0,
+        ativo: 0,
+        finalizado: 0
+    });
+
+    // Selections
+    selectedStatus = signal<'agendado' | 'ativo' | 'finalizado' | null>(null);
+    allSessions = signal<Session[]>([]);
+
+    filteredSessions = computed(() => {
+        const s = this.selectedStatus();
+        if (!s) return [];
+        return this.allSessions().filter(session => session.status === s);
+    });
+
+    selectedSession = signal<Session | null>(null);
+    attendees = signal<AttendanceWithProfile[]>([]);
+    isLoadingAttendees = signal(false);
 
     ngOnInit() {
         // Check if user is actually admin
@@ -30,21 +49,83 @@ export class PainelComponent implements OnInit {
             if (profile && profile.role !== 'admin') {
                 this.router.navigate(['/dashboard']);
             } else if (profile && profile.role === 'admin') {
-                this.loadPendingCoristas();
+                this.loadData();
             }
         });
     }
 
-    loadPendingCoristas() {
+    loadData() {
         this.isLoading.set(true);
+        this.loadPendingCoristas();
+        this.loadCounts();
+        this.loadAllSessions();
+    }
+
+    loadPendingCoristas() {
         this.adminService.getPendingCoristas().subscribe({
             next: (coristas) => {
                 this.pendingCoristas.set(coristas);
-                this.isLoading.set(false);
+                this.checkLoadingState();
             },
             error: (err) => {
                 console.error("Erro ao carregar pendentes:", err);
-                this.isLoading.set(false);
+                this.checkLoadingState();
+            }
+        });
+    }
+
+    loadCounts() {
+        this.presencaService.getSessionsCountByStatus().subscribe({
+            next: (data) => {
+                this.counts.set(data);
+                this.checkLoadingState();
+            },
+            error: (err) => {
+                console.error("Erro ao carregar contagem:", err);
+                this.checkLoadingState();
+            }
+        });
+    }
+
+    loadAllSessions() {
+        this.presencaService.getAllSessions().subscribe({
+            next: (data) => {
+                this.allSessions.set(data);
+                this.checkLoadingState();
+            },
+            error: (err) => {
+                console.error("Erro ao carregar sessões:", err);
+                this.checkLoadingState();
+            }
+        });
+    }
+
+    private checkLoadingState() {
+        // In a real app we'd use forkJoin for this, but keeping it simple
+        this.isLoading.set(false);
+    }
+
+    selectStatus(status: 'agendado' | 'ativo' | 'finalizado') {
+        this.selectedStatus.set(status);
+        this.selectedSession.set(null);
+        this.attendees.set([]);
+    }
+
+    selectSession(session: Session) {
+        this.selectedSession.set(session);
+        this.loadAttendees(session.id);
+    }
+
+    loadAttendees(sessionId: string) {
+        this.isLoadingAttendees.set(true);
+        this.presencaService.getSessionAttendees(sessionId).subscribe({
+            next: (data) => {
+                this.attendees.set(data);
+                this.isLoadingAttendees.set(false);
+            },
+            error: (err) => {
+                console.error("Erro ao carregar presentes:", err);
+                this.isLoadingAttendees.set(false);
             }
         });
     }
@@ -52,7 +133,6 @@ export class PainelComponent implements OnInit {
     approve(id: string) {
         this.adminService.approveCorista(id).subscribe({
             next: () => {
-                // Remove from list locally
                 this.pendingCoristas.update(list => list.filter(c => c.id !== id));
             },
             error: (err) => console.error("Erro ao aprovar:", err)
@@ -62,28 +142,9 @@ export class PainelComponent implements OnInit {
     reject(id: string) {
         this.adminService.rejectCorista(id).subscribe({
             next: () => {
-                // Remove from list locally
                 this.pendingCoristas.update(list => list.filter(c => c.id !== id));
             },
             error: (err) => console.error("Erro ao reprovar:", err)
-        });
-    }
-
-    iniciarEnsaio() {
-        alert("Foi clicado! Teste bruto do angular");
-        console.log("Botão Iniciar Ensaio Clicado!");
-        this.isGeneratingQR.set(true);
-        // Para simplificar no MVP, usando default values
-        this.presencaService.startSession("Ensaio Coral Jovem", "IBS - Asa Sul").subscribe({
-            next: (session) => {
-                this.isGeneratingQR.set(false);
-                this.router.navigate(['/projecao']);
-            },
-            error: (err) => {
-                console.error("DEBUG INICIAR ENSAIO:", err);
-                alert("Erro ao iniciar ensaio! Detalhes no console. " + (err.message || ''));
-                this.isGeneratingQR.set(false);
-            }
         });
     }
 
@@ -91,8 +152,21 @@ export class PainelComponent implements OnInit {
         this.router.navigate(['/admin/ensaios']);
     }
 
+    goToDashboard() {
+        this.router.navigate(['/dashboard']);
+    }
+
     async logout() {
         await this.authService.signOut().toPromise();
         this.router.navigate(['/login']);
+    }
+
+    getStatusLabel(status: string): string {
+        switch (status) {
+            case 'agendado': return 'Agendados';
+            case 'ativo': return 'Ativos';
+            case 'finalizado': return 'Encerrados';
+            default: return status;
+        }
     }
 }
