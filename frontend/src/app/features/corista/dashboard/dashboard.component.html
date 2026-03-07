@@ -1,0 +1,209 @@
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-24 transition-colors duration-300 relative">
+
+    @if(isLoading() || !profile()) {
+    <div class="fixed inset-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm flex items-center justify-center">
+        <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    }
+
+    <!-- Top Toast Notification -->
+    @if(scannerSuccess() || scannerError()) {
+    <div class="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-sm animate-fade-in-down">
+        <div [ngClass]="scannerSuccess() ? 'bg-emerald-500' : 'bg-rose-500'"
+            class="text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+            <span class="material-symbols-outlined">{{ scannerSuccess() ? 'check_circle' : 'error' }}</span>
+            <p class="text-sm font-medium">{{ scannerSuccess() || scannerError() }}</p>
+            <button (click)="scannerSuccess() ? scannerSuccess.set('') : scannerError.set('')"
+                class="ml-auto opacity-70 hover:opacity-100"><span
+                    class="material-symbols-outlined text-[20px]">close</span></button>
+        </div>
+    </div>
+    }
+
+    <!-- QR Code Scanner Modal -->
+    @if(isScanning()) {
+    <div class="fixed inset-0 z-[60] bg-black flex flex-col items-center justify-center animate-fade-in">
+        <button (click)="stopScanner()"
+            class="absolute top-6 right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white backdrop-blur-md z-10 active:scale-95">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+
+        <div
+            class="relative w-full max-w-md aspect-[3/4] overflow-hidden rounded-3xl shadow-2xl bg-slate-900 border border-white/10">
+            <!-- The Video Element Zxing will hook into -->
+            <video id="cameraPreview" class="w-full h-full object-cover"></video>
+
+            <!-- Targeting Overlay -->
+            <div class="absolute inset-0 border-[40px] border-black/50 pointer-events-none"></div>
+            <div
+                class="absolute inset-x-[15%] inset-y-[20%] border-2 border-white/50 rounded-2xl pointer-events-none flex items-center justify-center">
+                <!-- Animated Scanning Bar -->
+                <div class="w-full h-0.5 bg-primary/80 animate-scan-line shadow-[0_0_8px_rgba(var(--primary-rgb),1)]">
+                </div>
+            </div>
+
+            <div class="absolute bottom-10 inset-x-0 text-center pointer-events-none">
+                <p
+                    class="text-white text-sm font-medium bg-black/60 backdrop-blur-sm mx-auto px-4 py-2 rounded-full w-fit">
+                    Aponte a câmera para o telão
+                </p>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if(!isLoading() && profile() && !isScanning()) {
+    <!-- Header/Profile Area -->
+    <header class="bg-primary dark:bg-slate-900 text-white rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div
+            class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
+        </div>
+        <div class="px-6 pt-12 pb-8 relative z-10 flex justify-between items-start">
+            <div class="flex gap-4 items-center">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                    <span class="text-2xl font-bold uppercase">{{ profile()!.username.charAt(0) }}</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight leading-tight">{{ profile()!.username }}</h1>
+                    <p class="text-primary-foreground/80 text-sm flex items-center gap-1 mt-1">
+                        <span class="material-symbols-outlined text-[16px]">music_note</span>
+                        {{ profile()!.voice_part }}
+                    </p>
+                </div>
+            </div>
+            <button (click)="logout()"
+                class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-transform">
+                <span class="material-symbols-outlined text-white">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="px-6 py-6 space-y-8 max-w-lg mx-auto">
+        <!-- Stats Quádruplo -->
+        <section class="grid grid-cols-2 gap-4 -mt-12 relative z-20">
+            <!-- Frequência Card -->
+            <div
+                class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-xl shadow-sky-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+                <p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-semibold mb-2">
+                    Frequência</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-bold {{ frequencia.cor }} leading-none">{{ frequencia.valor }}%</span>
+                </div>
+            </div>
+
+            <!-- Faltas Card -->
+            <div
+                class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-xl shadow-sky-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800">
+                <p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-semibold mb-2">Faltas
+                    no Ano</p>
+                <div class="flex items-end gap-2">
+                    <span class="text-3xl font-bold text-slate-900 dark:text-slate-100 leading-none">{{ stats().faltas
+                        }}</span>
+                    <span
+                        class="text-rose-500 text-sm mb-0.5 font-medium border-l border-slate-200 dark:border-slate-700 pl-2 ml-1">Limit
+                        12</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Próximo Ensaio Destacado -->
+        <section>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 px-1">Presença no Ensaio</h2>
+            <div
+                class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-xl shadow-sky-100/50 dark:shadow-none border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden group">
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+
+                <div
+                    class="w-16 h-16 bg-primary/10 dark:bg-primary/20 text-primary rounded-2xl mx-auto flex items-center justify-center mb-4 transform group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-3xl">qr_code_scanner</span>
+                </div>
+
+                <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-1 tracking-tight">Registro via Leitor</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed px-4">
+                    Aponte sua câmera para o telão oficial da regência e registre sua presença automaticamente.
+                </p>
+                <button (click)="scanQRCode()"
+                    class="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-primary/30 active:scale-95 flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">center_focus_weak</span>
+                    Abrir Scanner QR
+                </button>
+            </div>
+        </section>
+
+        <!-- Histórico Recente -->
+        <section>
+            <div class="flex justify-between items-center mb-4 px-1">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Últimos Ensaios</h2>
+                <button class="text-primary text-sm font-semibold hover:underline">Ver longo</button>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Mocks até a próxima integração serverless do Angular -->
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:border-primary/30 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[20px]">check</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Ensaio Geral</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sábado, 02 Mar · 16:00</p>
+                        </div>
+                    </div>
+                    <span
+                        class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 rounded-lg">Presente</span>
+                </div>
+
+                <div
+                    class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:border-primary/30 transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">Ensaio de Naipe</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Sábado, 24 Fev · 16:00</p>
+                        </div>
+                    </div>
+                    <span
+                        class="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 px-2.5 py-1 rounded-lg">Falta</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Action Button (Alternative QR Scanner) -->
+    <div class="fixed bottom-24 right-6 z-40 lg:hidden">
+        <button (click)="scanQRCode()"
+            class="w-14 h-14 bg-primary text-white rounded-full shadow-lg shadow-primary/40 flex items-center justify-center active:scale-95 transition-transform">
+            <span class="material-symbols-outlined text-2xl">qr_code_scanner</span>
+        </button>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav
+        class="fixed bottom-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-safe pt-2 px-6 z-50">
+        <div class="flex justify-between items-center max-w-sm mx-auto h-16">
+            <button class="flex flex-col items-center gap-1 text-primary w-16">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+                <span class="text-[10px] font-medium">Início</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-16 transition-colors">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span class="text-[10px] font-medium">Agenda</span>
+            </button>
+            <button
+                class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-16 transition-colors">
+                <span class="material-symbols-outlined">person</span>
+                <span class="text-[10px] font-medium">Perfil</span>
+            </button>
+        </div>
+    </nav>
+    }
+</div>

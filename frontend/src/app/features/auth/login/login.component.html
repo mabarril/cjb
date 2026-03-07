@@ -1,0 +1,146 @@
+<div
+    class="bg-sky-50 dark:bg-slate-950 min-h-screen flex items-center justify-center p-6 transition-colors duration-300">
+    <div
+        class="w-full max-w-md bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl shadow-2xl shadow-sky-200/50 dark:shadow-none border border-white dark:border-slate-800 overflow-hidden relative">
+
+        <!-- Loading Overlay -->
+        @if(isLoading()) {
+        <div
+            class="absolute inset-0 z-50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm flex items-center justify-center">
+            <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        }
+
+        <div class="p-8">
+            <div class="flex flex-col items-center mb-8">
+                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                    <span class="material-symbols-outlined text-primary text-4xl">music_note</span>
+                </div>
+                <h2
+                    class="text-slate-900 dark:text-slate-100 tracking-tight text-2xl font-bold leading-tight text-center">
+                    Coral Jovem de Brasília
+                </h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm font-normal mt-2 text-center">
+                    {{ isLoginMode() ? 'Entre com seus dados para continuar' : 'Crie sua conta no sistema' }}
+                </p>
+            </div>
+
+            <!-- Error Message -->
+            @if(errorMessage()) {
+            <div class="mb-6 p-4 rounded-xl text-sm font-medium"
+                [ngClass]="isLoginMode() && errorMessage().includes('Cadastro realizado') ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'">
+                {{ errorMessage() }}
+            </div>
+            }
+
+            <!-- Login Form -->
+            @if(isLoginMode()) {
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">
+                        E-mail
+                    </label>
+                    <div class="relative flex items-center">
+                        <span
+                            class="material-symbols-outlined absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none">mail</span>
+                        <input formControlName="email"
+                            class="form-input block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+                            placeholder="seu@email.com" type="email" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <label class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">
+                            Senha
+                        </label>
+                    </div>
+                    <div class="relative flex items-center">
+                        <span
+                            class="material-symbols-outlined absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none">lock</span>
+                        <input formControlName="password"
+                            class="form-input block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+                            placeholder="••••••••" type="password" />
+                    </div>
+                </div>
+
+                <button [disabled]="loginForm.invalid || isLoading()"
+                    class="w-full bg-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 focus:outline-none active:scale-[0.98]"
+                    type="submit">
+                    Entrar
+                </button>
+            </form>
+            }
+
+            <!-- Register Form -->
+            @if(!isLoginMode()) {
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium">Nome Completo</label>
+                    <input formControlName="full_name"
+                        class="form-input w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="João da Silva" type="text" />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium">Como quer ser chamado
+                        (Alias/Username)</label>
+                    <input formControlName="username"
+                        class="form-input w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="joaosilva ou João" type="text" />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium">Naipe / Voz</label>
+                    <select formControlName="voice_part"
+                        class="form-select w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20">
+                        <option value="Soprano">Soprano</option>
+                        <option value="Contralto">Contralto</option>
+                        <option value="Tenor">Tenor</option>
+                        <option value="Baixo">Baixo</option>
+                        <option value="Regência">Regência</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium">E-mail</label>
+                    <input formControlName="email"
+                        class="form-input w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="seu@email.com" type="email" />
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium">Senha</label>
+                    <input formControlName="password"
+                        class="form-input w-full py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="Mínimo 6 caracteres" type="password" />
+                </div>
+
+                <button [disabled]="registerForm.invalid || isLoading()"
+                    class="w-full mt-2 bg-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-[0.98]"
+                    type="submit">
+                    Solicitar Cadastro
+                </button>
+            </form>
+            }
+
+        </div>
+
+        <div class="px-8 pb-8 text-center">
+            <div class="relative flex items-center py-4">
+                <div class="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-slate-400 text-xs uppercase tracking-widest font-medium">Ou</span>
+                <div class="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 text-sm">
+                {{ isLoginMode() ? 'Não tem uma conta?' : 'Já possui conta?' }}
+                <button (click)="toggleMode()"
+                    class="text-primary font-bold hover:underline ml-1 hover:text-primary/80 transition-colors">
+                    {{ isLoginMode() ? 'Criar uma conta' : 'Fazer Login' }}
+                </button>
+            </p>
+        </div>
+
+    </div>
+</div>

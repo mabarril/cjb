@@ -1,0 +1,163 @@
+<div class="bg-slate-900 min-h-screen flex items-center justify-center p-8 font-sans selection:bg-indigo-500/30">
+    <!-- Efeitos Atmosféricos -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+            class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen">
+        </div>
+        <div
+            class="absolute top-[60%] -right-[10%] w-[40%] h-[60%] bg-purple-600/20 blur-[120px] rounded-full mix-blend-screen">
+        </div>
+        <div
+            class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDIiLz4KPC9zdmc+')] opacity-20">
+        </div>
+    </div>
+
+    @if(isLoading()) {
+    <div class="z-10 text-white flex flex-col items-center">
+        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-indigo-300">Procurando ensaios abertos...</p>
+    </div>
+    }
+
+    <!-- Container Principal (Layout em Grid) -->
+    @if(!isLoading() && session()) {
+    <div class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center relative z-10">
+
+        <!-- Lado Esquerdo: Instruções e Detalhes -->
+        <div class="lg:col-span-5 flex flex-col justify-center space-y-12">
+
+            <button (click)="backToAdmin()"
+                class="flex items-center gap-2 text-indigo-400 hover:text-white transition-colors w-fit mb-4">
+                <span class="material-symbols-outlined">arrow_back</span> VoLtar ao Painel Admin
+            </button>
+
+            <!-- Brand -->
+            <div class="space-y-4">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-medium text-sm">
+                    <span
+                        class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+                    Sessão Ativa
+                </div>
+                <h1 class="text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
+                    {{ session()!.title }}<br />
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Presença</span>
+                </h1>
+                <p class="text-slate-400 text-lg lg:text-xl font-medium flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[24px]">location_on</span>
+                    {{ session()!.location }}
+                </p>
+            </div>
+
+            <!-- Steps -->
+            <div class="space-y-6">
+                <!-- Step 1 -->
+                <div class="flex items-start gap-5">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative group">
+                        <div
+                            class="absolute inset-0 bg-indigo-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <span class="text-xl font-bold text-white relative z-10">1</span>
+                    </div>
+                    <div class="pt-1.5">
+                        <h3 class="text-white font-bold text-xl mb-1">Abra o Aplicativo</h3>
+                        <p class="text-slate-400">Acesse o portal do corista no seu smartphone e mantenha o login
+                            efetuado.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start gap-5">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 shadow-lg relative group">
+                        <div
+                            class="absolute inset-0 bg-purple-500/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <span class="text-xl font-bold text-white relative z-10">2</span>
+                    </div>
+                    <div class="pt-1.5">
+                        <h3 class="text-white font-bold text-xl mb-1">Escaneie o QR Code</h3>
+                        <p class="text-slate-400">Utilize a aba do leitor no aplicativo e aponte a câmera para esta
+                            tela.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contador em Tempo Real (Opcional visualmente) -->
+            <div class="pt-8 border-t border-slate-800">
+                <div class="flex items-center gap-4">
+                    <div class="flex -space-x-3">
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center text-sm font-bold text-slate-300">
+                            T</div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-slate-700 border-2 border-slate-900 flex items-center justify-center text-sm font-bold text-slate-300">
+                            B</div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-indigo-900 border-2 border-slate-900 flex items-center justify-center text-sm font-bold text-indigo-300 z-10">
+                            +{{ activeCoristas() }}
+                        </div>
+                    </div>
+                    <p class="text-slate-400 font-medium text-sm">Coristas já registraram presença hoje.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Lado Direito: O QR Code Gigante -->
+        <div class="lg:col-span-7 flex justify-center lg:justify-end">
+            <div class="relative w-full max-w-[500px] aspect-square">
+                <!-- Efeito Glow por trás do QR -->
+                <div
+                    class="absolute inset-0 bg-gradient-to-tr from-indigo-500/40 to-purple-500/40 blur-3xl transform scale-90 rounded-[3rem]">
+                </div>
+
+                <!-- Borda "Neomorfica" do QR -->
+                <div
+                    class="relative w-full h-full bg-white rounded-[3rem] p-8 lg:p-12 shadow-[0_0_50px_rgba(0,0,0,0.5)] border-8 border-white/10 backdrop-blur-xl flex items-center justify-center group overflow-hidden">
+
+                    <!-- Cantoneiras Animadas (Efeito Scanner) -->
+                    <div
+                        class="absolute top-0 left-0 w-16 h-16 border-t-8 border-l-8 border-indigo-500 rounded-tl-[2.5rem] m-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="absolute top-0 right-0 w-16 h-16 border-t-8 border-r-8 border-purple-500 rounded-tr-[2.5rem] m-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 w-16 h-16 border-b-8 border-l-8 border-indigo-500 rounded-bl-[2.5rem] m-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="absolute bottom-0 right-0 w-16 h-16 border-b-8 border-r-8 border-purple-500 rounded-br-[2.5rem] m-6 opacity-50 group-hover:opacity-100 transition-opacity">
+                    </div>
+
+                    <!-- SVG DO QR CODE INJETADO AQUI -->
+                    <div class="w-full h-full" [innerHTML]="qrCodeSvg()">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    }
+
+    @if(!isLoading() && !session()) {
+    <div class="z-10 text-center flex flex-col items-center max-w-md">
+        <!-- Blank State: Nenhum ensaio rolando -->
+        <div
+            class="w-24 h-24 bg-slate-800 rounded-3xl flex items-center justify-center mb-6 shadow-xl border border-slate-700">
+            <span class="material-symbols-outlined text-5xl text-slate-500">grid_off</span>
+        </div>
+        <h2 class="text-3xl font-bold text-white mb-2">Nenhum Ensaio Ativo</h2>
+        <p class="text-slate-400 mb-8">No momento não há nenhum ensaio ou evento aceitando presença. Solicite à regência
+            para abrir uma nova sessão.</p>
+        <button (click)="backToAdmin()"
+            class="bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-8 rounded-xl transition-colors">
+            Voltar ao Painel Admin
+        </button>
+    </div>
+    }
+
+</div>
