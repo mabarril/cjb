@@ -189,7 +189,9 @@ export class EnsaiosComponent implements OnInit {
     private async drawQROnCanvas(ctx: CanvasRenderingContext2D, token: string, W: number, H: number): Promise<void> {
         return new Promise(async (resolve) => {
             // Dynamically import qrcode library
-            const QRCode = await import('qrcode');
+            const mod = await import('qrcode');
+            const QRCode = mod.default || mod;
+
             const qrSize = 480;
             const qrDataUrl = await QRCode.toDataURL(token, {
                 width: qrSize,
