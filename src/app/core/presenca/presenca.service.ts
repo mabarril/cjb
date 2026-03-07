@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '../supabase/supabase.service';
 import { from, Observable } from 'rxjs';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 export interface Session {
     id: string;
@@ -18,6 +19,16 @@ export interface SessionFormData {
     location: string;
     scheduled_at: string;
     end_at?: string | null;
+}
+
+export interface AttendanceWithSession {
+    id: string;
+    scanned_at: string;
+    status: 'presente' | 'ausente' | 'atrasado';
+    session: {
+        title: string;
+        scheduled_at: string;
+    } | null;
 }
 
 @Injectable({
@@ -202,5 +213,46 @@ export class PresencaService {
                     return { success: true };
                 })
         );
+    }
+
+    // --- Histórico do Corista ---
+
+    getUserAttendances(userId: string): Observable<AttendanceWithSession[]> {
+        return from(
+            this.supabaseService.client
+                .from('attendances')
+                .select(`
+                    id,
+                    scanned_at,
+                    status,
+                    session:sessions ( title, scheduled_at )
+                `)
+                .eq('user_id', userId)
+                .order('scanned_at', { ascending: false })
+                .then(res => {
+                    if (res.error) throw res.error;
+                    // Supabase returns joined table as array; normalize to single object
+                    return (res.data as any[]).map(row => ({
+                        ...row,
+                        session: Array.isArray(row.session) ? row.session[0] ?? null : row.session
+                    })) as AttendanceWithSession[];
+                })
+        );
+    }
+
+    subscribeToUserAttendances(userId: string, callback: () => void): RealtimeChannel {
+        return this.supabaseService.client
+            .channel(`attendances:user:${userId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'attendances',
+                    filter: `user_id=eq.${userId}`
+                },
+                () => callback()
+            )
+            .subscribe();
     }
 }

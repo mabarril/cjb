@@ -1,10 +1,11 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PresencaService } from '../../../core/presenca/presenca.service';
+import { PresencaService, AttendanceWithSession } from '../../../core/presenca/presenca.service';
 import { SupabaseService, Profile } from '../../../core/supabase/supabase.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
+import { RealtimeChannel } from '@supabase/supabase-js';
 
 @Component({
     selector: 'app-dashboard',
@@ -23,6 +24,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
     isAdmin = computed(() => this.profile()?.role === 'admin');
     accessDenied = signal(false);
     isLoading = signal(true);
+    isStatsLoading = signal(true);
+
+    // Real attendance data
+    attendances = signal<AttendanceWithSession[]>([]);
+
+    // Computed stats from real data
+    presencas = computed(() => this.attendances().filter(a => a.status === 'presente').length);
+    faltas = computed(() => this.attendances().filter(a => a.status !== 'presente').length);
+    recentAttendances = computed(() => this.attendances().slice(0, 5));
+
+    frequencia = computed(() => {
+        const total = this.presencas() + this.faltas();
+        const p = total === 0 ? 0 : Math.round((this.presencas() / total) * 100);
+        return {
+            valor: p,
+            cor: p >= 75 ? 'text-emerald-500' : p >= 50 ? 'text-amber-500' : 'text-rose-500'
+        };
+    });
 
     // Scanner State
     isScanning = signal(false);
@@ -30,21 +49,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     scannerSuccess = signal('');
     private codeReader = new BrowserQRCodeReader();
     private scannerControls: IScannerControls | null = null;
-
-    // Mocks por enquanto. Serão substituídos por histórico real baseado na data
-    stats = signal({
-        presencas: 8,
-        faltas: 2
-    });
-
-    get frequencia() {
-        const total = this.stats().presencas + this.stats().faltas;
-        const p = total === 0 ? 0 : Math.round((this.stats().presencas / total) * 100);
-        return {
-            valor: p,
-            cor: p >= 75 ? 'text-emerald-500' : p >= 50 ? 'text-amber-500' : 'text-rose-500'
-        };
-    }
+    private realtimeChannel: RealtimeChannel | null = null;
 
     ngOnInit() {
         // Check for access denied redirect from admin guard
@@ -52,7 +57,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
             if (params['access'] === 'denied') {
                 this.accessDenied.set(true);
                 setTimeout(() => this.accessDenied.set(false), 4000);
-                // Clean the URL without triggering navigation
                 this.router.navigate([], { queryParams: {}, replaceUrl: true });
             }
         });
@@ -64,8 +68,32 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 } else {
                     this.profile.set(prof);
                     this.isLoading.set(false);
+                    // Load real data and subscribe to realtime
+                    this.loadAttendances(prof.id);
+                    this.subscribeToAttendances(prof.id);
                 }
             }
+        });
+    }
+
+    private loadAttendances(userId: string) {
+        this.isStatsLoading.set(true);
+        this.presencaService.getUserAttendances(userId).subscribe({
+            next: (data) => {
+                this.attendances.set(data);
+                this.isStatsLoading.set(false);
+            },
+            error: (err) => {
+                console.error('Erro ao carregar histórico:', err);
+                this.isStatsLoading.set(false);
+            }
+        });
+    }
+
+    private subscribeToAttendances(userId: string) {
+        this.realtimeChannel = this.presencaService.subscribeToUserAttendances(userId, () => {
+            // Reload data when any change arrives via Realtime
+            this.loadAttendances(userId);
         });
     }
 
@@ -75,6 +103,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.stopScanner();
+        // Unsubscribe from Realtime channel to avoid memory leaks
+        if (this.realtimeChannel) {
+            this.supabaseService.client.removeChannel(this.realtimeChannel);
+        }
     }
 
     async logout() {
@@ -87,8 +119,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.scannerError.set('');
         this.scannerSuccess.set('');
 
-        // Aguarda o próximo tick do event loop para o Angular renderizar
-        // o bloco @if(isScanning()) e o elemento <video> existir no DOM
         setTimeout(async () => {
             try {
                 const videoElement = document.getElementById('cameraPreview') as HTMLVideoElement;
@@ -99,10 +129,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     return;
                 }
 
-                // Starts continuous scanning from the default selected camera
                 this.scannerControls = await this.codeReader.decodeFromVideoDevice(undefined, videoElement, (result, _error, controls) => {
                     if (result) {
-                        // Parar leitura instantaneamente para não flodar o backend
                         controls.stop();
                         this.handleScannedToken(result.getText());
                     }
@@ -132,10 +160,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.stopScanner();
                 this.isLoading.set(false);
                 this.scannerSuccess.set("Presença registrada com sucesso! Ótimo ensaio!");
-
-                // Incrementa mockado por enquanto para dar feedback
-                this.stats.update(s => ({ ...s, presencas: s.presencas + 1 }));
-
+                // Realtime will auto-update the stats; no need for manual increment
                 setTimeout(() => this.scannerSuccess.set(''), 5000);
             },
             error: (err) => {
