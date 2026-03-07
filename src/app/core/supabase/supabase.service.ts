@@ -7,6 +7,12 @@ export interface Profile {
     id: string;
     username: string;
     full_name: string;
+    rg?: string | null;
+    orgao_emissor?: string | null;
+    cpf?: string | null;
+    data_nascimento?: string | null;
+    endereco?: string | null;
+    celular?: string | null;
     voice_part: 'Soprano' | 'Contralto' | 'Tenor' | 'Baixo' | 'Regência' | null;
     role: 'corista' | 'admin';
     status: 'pending' | 'approved' | 'rejected';

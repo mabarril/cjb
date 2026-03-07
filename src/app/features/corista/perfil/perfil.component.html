@@ -71,6 +71,83 @@
                     </div>
                 </div>
 
+                <!-- RG -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">RG</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">badge</span>
+                        <input type="text" [(ngModel)]="rg"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="Seu RG">
+                    </div>
+                </div>
+
+                <!-- Órgão Emissor -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Órgão Emissor</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">account_balance</span>
+                        <input type="text" [(ngModel)]="orgao_emissor"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="Órgão Emissor">
+                    </div>
+                </div>
+
+                <!-- CPF -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">CPF</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">pin</span>
+                        <input type="text" [ngModel]="cpf" (ngModelChange)="onCpfChange($event)" maxlength="14"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="Seu CPF">
+                    </div>
+                </div>
+
+                <!-- Data de Nascimento -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Data de Nascimento</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">calendar_today</span>
+                        <input type="date" [(ngModel)]="data_nascimento"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none">
+                    </div>
+                </div>
+
+                <!-- Celular -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Celular</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">smartphone</span>
+                        <input type="text" [ngModel]="celular" (ngModelChange)="onCelularChange($event)" maxlength="15"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="Seu celular / WhatsApp">
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="space-y-2">
+                    <label
+                        class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Endereço</label>
+                    <div class="relative">
+                        <span
+                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">home</span>
+                        <input type="text" [(ngModel)]="endereco"
+                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                            placeholder="Seu endereço completo">
+                    </div>
+                </div>
+
                 <!-- Naipe Selection -->
                 <div class="space-y-2">
                     <label
