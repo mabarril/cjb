@@ -1,0 +1,31 @@
+# Task Breakdown
+
+- [x] Planejamento do Sistema
+  - [x] Definir Arquitetura e Stack (Angular 20, Tailwind, Supabase)
+  - [x] Desenhar Modelagem de Dados (Supabase)
+  - [x] Definir Estrutura do Projeto Angular e Padrões de Clean Code
+- [x] Configuração Inicial
+  - [x] Inicializar projeto Angular 20
+  - [x] Configurar Tailwind CSS
+  - [x] Configurar cliente do Supabase
+- [x] Desenvolvimento do Backend (Supabase)
+  - [x] Criar tabelas e relacionamentos (`profiles`, `ensaios`, `presencas`)
+  - [x] Definir RLS (Row Level Security) para segurança dos dados
+- [x] Desenvolvimento Frontend - UI/UX
+  - [x] Traduzir HTMLs fornecidos para Componentes Angular
+  - [x] Criar Layout Base (Header, Navegação)
+  - [x] Tela de Login
+  - [x] Dashboard do Corista
+  - [x] Leitor de QR Code para Coristas
+  - [x] Painel Administrativo (Regente)
+  - [x] Visão de Projeção do QR Code
+- [x] Integração e Funcionalidades
+  - [x] Fluxo de Autenticação
+  - [x] Fluxo de Registro do Corista (Sign Up)
+  - [x] Aprovação de Coristas Pendentes (Painel Admin)
+  - [x] Geração dinâmica de QR Code no Painel Admin
+  - [x] Leitura e validação de presença do lado do Corista
+  - [/] Atualização em tempo real do Dashboard Admin (Supabase Realtime)
+- [ ] Verificação e Deploy
+  - [ ] Testes de validação de fluxo
+  - [ ] Deploy do Frontend
