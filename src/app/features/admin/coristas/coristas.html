@@ -1,0 +1,263 @@
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-24 transition-colors duration-300">
+  <!-- Header Admin Style -->
+  <header class="bg-indigo-600 dark:bg-slate-900 text-white rounded-b-3xl shadow-lg relative overflow-hidden">
+    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+    <div class="px-6 pt-12 pb-8 relative z-10 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <button (click)="goBack()"
+          class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 active:scale-95 transition-all hover:bg-white/20"
+          title="Voltar ao Painel">
+          <span class="material-symbols-outlined text-white text-[20px]">arrow_back</span>
+        </button>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">Gestão de Coristas</h1>
+          <p class="text-indigo-100 text-[10px] uppercase font-bold tracking-widest opacity-80">Administração</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="px-6 py-6 space-y-8 max-w-4xl mx-auto">
+    <!-- Filters -->
+    <section>
+      <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 px-1">Filtros</h2>
+      <div class="bg-white dark:bg-slate-900 shadow-sm rounded-3xl border border-slate-100 dark:border-slate-800 p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="search">Buscar</label>
+            <input id="search" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 overflow-hidden" type="text" placeholder="Nome do corista..." [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="naipe">Naipe</label>
+            <select id="naipe" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [ngModel]="filterNaipe()" (ngModelChange)="filterNaipe.set($event)">
+              <option value="">Todos</option>
+              <option value="Soprano">Soprano</option>
+              <option value="Contralto">Contralto</option>
+              <option value="Tenor">Tenor</option>
+              <option value="Baixo">Baixo</option>
+              <option value="Regência">Regência</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="status">Status</label>
+            <select id="status" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
+              <option value="">Todos</option>
+              <option value="approved">Aprovados</option>
+              <option value="pending">Pendentes</option>
+              <option value="rejected">Inativos/Rej.</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coristas List -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between px-1 text-slate-500">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="w-1 h-5 bg-indigo-500 rounded-full"></span>
+          Lista de Coristas
+        </h2>
+        <div class="flex items-center gap-3">
+          <button (click)="exportActiveToExcel()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">download</span>
+            Exportar Excel
+          </button>
+          <button (click)="exportActiveToExcel()" class="sm:hidden w-8 h-8 flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors" title="Exportar Excel">
+            <span class="material-symbols-outlined text-[18px]">download</span>
+          </button>
+          <span class="text-xs font-bold">{{filteredCoristas().length}} corista(s)</span>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Loading -->
+        <div *ngIf="loading()" class="flex justify-center p-8">
+            <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="error()" class="bg-rose-50 dark:bg-rose-900/20 text-rose-500 p-4 rounded-2xl text-center text-sm">
+            {{error()}}
+        </div>
+
+        <!-- List -->
+        <ng-container *ngIf="!loading() && !error()">
+          <div *ngFor="let corista of filteredCoristas()" class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-all hover:shadow-md">
+            <!-- Avatar -->
+            <div class="w-12 h-12 shrink-0 overflow-hidden rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold uppercase text-xl">
+              <img *ngIf="corista.avatar_url" class="w-full h-full object-cover" [src]="corista.avatar_url" alt="Avatar">
+              <span *ngIf="!corista.avatar_url">{{corista.full_name.charAt(0) || corista.username?.charAt(0) || '?'}}</span>
+            </div>
+            
+            <!-- Details -->
+            <div class="flex-1 min-w-0 flex flex-col gap-1 w-full">
+              <div class="flex items-start justify-between sm:justify-start gap-2 w-full">
+                <p class="font-bold text-slate-900 dark:text-slate-100 truncate text-base">{{corista.full_name}}</p>
+                <!-- Status Badge (Mobile view top placement) -->
+                <div class="shrink-0 flex sm:hidden">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" [ngClass]="{
+                    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': corista.status === 'approved',
+                    'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': corista.status === 'pending',
+                    'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400': corista.status === 'rejected'
+                  }">
+                    {{corista.status === 'approved' ? 'Aprovado' : corista.status === 'pending' ? 'Pendente' : 'Inativo'}}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 w-full">
+                <span class="flex items-center gap-1 font-medium capitalize" [ngClass]="{
+                  'text-amber-500': corista.voice_part === 'Soprano',
+                  'text-pink-500': corista.voice_part === 'Contralto',
+                  'text-blue-500': corista.voice_part === 'Tenor',
+                  'text-emerald-500': corista.voice_part === 'Baixo',
+                  'text-indigo-500': corista.voice_part === 'Regência'
+                }">
+                  <span class="material-symbols-outlined text-[14px]">music_note</span>
+                  {{corista.voice_part || '-'}}
+                </span>
+                <span class="hidden sm:inline">&bull;</span>
+                <span class="flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[14px]">phone</span>
+                  {{corista.celular || 'Sem contato'}}
+                </span>
+                <!-- Status Badge (Desktop view inline) -->
+                <span class="hidden sm:inline text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ml-auto" [ngClass]="{
+                  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400': corista.status === 'approved',
+                  'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': corista.status === 'pending',
+                  'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400': corista.status === 'rejected'
+                 }">
+                  {{corista.status === 'approved' ? 'Aprovado' : corista.status === 'pending' ? 'Pendente' : 'Inativo'}}
+                </span>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-800">
+              <button (click)="toggleAdminRole(corista)" class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90 transition-all"
+                [ngClass]="corista.role === 'admin' ? 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 hover:text-rose-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 hover:text-indigo-600'" 
+                [title]="corista.role === 'admin' ? 'Remover Admin' : 'Tornar Admin'">
+                <span class="material-symbols-outlined text-[20px]">{{ corista.role === 'admin' ? 'admin_panel_settings' : 'shield_person' }}</span>
+              </button>
+              <button (click)="openEditModal(corista)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center active:scale-90 transition-all hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-indigo-600" title="Editar Corista">
+                <span class="material-symbols-outlined text-[20px]">edit</span>
+              </button>
+              <button (click)="openDeleteModal(corista)" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center active:scale-90 transition-all hover:bg-rose-100 dark:hover:bg-rose-900/40 hover:text-rose-600" title="Inativar/Excluir">
+                <span class="material-symbols-outlined text-[20px]">delete</span>
+              </button>
+            </div>
+          </div>
+        </ng-container>
+        
+        <!-- Empty -->
+        <div *ngIf="!loading() && filteredCoristas().length === 0" class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 text-center">
+            <span class="material-symbols-outlined text-slate-300 dark:text-slate-700 text-4xl mb-2 block">group_off</span>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Nenhum corista encontrado.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Edit Modal -->
+  <div *ngIf="isEditModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" (click)="closeEditModal()">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800" (click)="$event.stopPropagation()">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Editar Corista</h3>
+          <button (click)="closeEditModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        
+        <div class="space-y-4" *ngIf="selectedCorista() as corista">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nome Completo</label>
+            <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.full_name" />
+          </div>
+
+          <!-- Celular & Data de Nascimento -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Celular</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="(11) 99999-9999" [(ngModel)]="corista.celular" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Data Nasc.</label>
+              <input type="date" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.data_nascimento" />
+            </div>
+          </div>
+
+          <!-- RG & Órgão -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">RG</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="00.000.000-0" [(ngModel)]="corista.rg" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Órgão Emissor</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="SSP" [(ngModel)]="corista.orgao_emissor" />
+            </div>
+          </div>
+
+          <!-- CPF & Endereço -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">CPF</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="000.000.000-00" [(ngModel)]="corista.cpf" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Endereço</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="Rua, Número, Bairro" [(ngModel)]="corista.endereco" />
+            </div>
+          </div>
+          
+          <hr class="border-slate-100 dark:border-slate-800 my-4">
+          <!-- Naipe & Status -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="edit-naipe">Naipe</label>
+              <select id="edit-naipe" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.voice_part">
+                <option value="Soprano">Soprano</option>
+                <option value="Contralto">Contralto</option>
+                <option value="Tenor">Tenor</option>
+                <option value="Baixo">Baixo</option>
+                <option value="Regência">Regência</option>
+              </select>
+            </div>
+            <div>
+            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="edit-status">Status</label>
+            <select id="edit-status" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.status">
+              <option value="approved">Aprovado</option>
+              <option value="pending">Pendente</option>
+              <option value="rejected">Inativo/Rejeitado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-8 flex gap-3 justify-end">
+          <button (click)="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cancelar</button>
+          <button (click)="saveCorista()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm">Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div *ngIf="isDeleteModalOpen()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity" (click)="closeDeleteModal()">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-200 dark:border-slate-800" (click)="$event.stopPropagation()">
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center mx-auto mb-4">
+          <span class="material-symbols-outlined text-3xl">warning</span>
+        </div>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Inativar Corista?</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Ao inativar <strong>{{coristaToDelete()?.full_name}}</strong>, o cadastro permanecerá no sistema como "Rejeitado" para manter o histórico de presenças.</p>
+        
+        <div class="flex gap-3">
+          <button (click)="closeDeleteModal()" class="flex-1 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancelar</button>
+          <button (click)="confirmDelete()" class="flex-1 py-3 rounded-xl text-sm font-bold text-white bg-rose-500 hover:bg-rose-600 transition-colors shadow-sm">Inativar, Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

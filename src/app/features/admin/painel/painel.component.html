@@ -50,22 +50,20 @@
                     </div>
                 </button>
 
-                <!-- Gerenciar Coristas Card (Future Feature/Anchor) -->
-                <button
-                    class="group relative bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/30 transition-all text-left overflow-hidden opacity-60">
+                <!-- Gerenciar Coristas Card -->
+                <button (click)="goToCoristas()"
+                    class="group relative bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/30 transition-all text-left overflow-hidden">
                     <div
                         class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform">
                     </div>
                     <div class="flex items-start gap-4 relative z-10">
                         <div
-                            class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                            class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors shadow-sm">
                             <span class="material-symbols-outlined">group</span>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100 italic">Gestão de Coristas</h3>
-                            <p
-                                class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full w-fit mt-1">
-                                Em breve</p>
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100">Gestão de Coristas</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Gerenciar cadastros, editar naipes e roles.</p>
                         </div>
                     </div>
                 </button>
