@@ -152,6 +152,10 @@ export class PainelComponent implements OnInit {
         this.router.navigate(['/admin/ensaios']);
     }
 
+    goToCoristas() {
+        this.router.navigate(['/admin/coristas']);
+    }
+
     goToDashboard() {
         this.router.navigate(['/dashboard']);
     }

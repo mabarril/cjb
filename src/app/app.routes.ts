@@ -28,6 +28,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/ensaios/ensaios.component').then(m => m.EnsaiosComponent)
     },
     {
+        path: 'admin/coristas',
+        canActivate: [authGuard, adminGuard],
+        loadComponent: () => import('./features/admin/coristas/coristas').then(m => m.Coristas)
+    },
+    {
         path: 'projecao',
         canActivate: [authGuard],
         loadComponent: () => import('./features/projecao/display/display.component').then(m => m.DisplayComponent)
