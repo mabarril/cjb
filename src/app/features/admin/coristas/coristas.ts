@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { Profile } from '../../../core/supabase/supabase.service';
+import { NgxMaskDirective } from 'ngx-mask';
+import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
 
 @Component({
   selector: 'app-coristas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxMaskDirective, UppercaseDirective],
   templateUrl: './coristas.html',
   styleUrl: './coristas.css'
 })

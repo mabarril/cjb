@@ -87,13 +87,13 @@
             <!-- Avatar -->
             <div class="w-12 h-12 shrink-0 overflow-hidden rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold uppercase text-xl">
               <img *ngIf="corista.avatar_url" class="w-full h-full object-cover" [src]="corista.avatar_url" alt="Avatar">
-              <span *ngIf="!corista.avatar_url">{{corista.full_name.charAt(0) || corista.username?.charAt(0) || '?'}}</span>
+              <span *ngIf="!corista.avatar_url">{{ (corista.full_name.charAt(0) || corista.username.charAt(0) || '?') | uppercase }}</span>
             </div>
             
             <!-- Details -->
             <div class="flex-1 min-w-0 flex flex-col gap-1 w-full">
               <div class="flex items-start justify-between sm:justify-start gap-2 w-full">
-                <p class="font-bold text-slate-900 dark:text-slate-100 truncate text-base">{{corista.full_name}}</p>
+                <p class="font-bold text-slate-900 dark:text-slate-100 truncate text-base">{{ corista.full_name | uppercase }}</p>
                 <!-- Status Badge (Mobile view top placement) -->
                 <div class="shrink-0 flex sm:hidden">
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" [ngClass]="{
@@ -101,7 +101,7 @@
                     'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': corista.status === 'pending',
                     'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400': corista.status === 'rejected'
                   }">
-                    {{corista.status === 'approved' ? 'Aprovado' : corista.status === 'pending' ? 'Pendente' : 'Inativo'}}
+                    {{ (corista.status === 'approved' ? 'Aprovado' : corista.status === 'pending' ? 'Pendente' : 'Inativo') | uppercase }}
                   </span>
                 </div>
               </div>
@@ -115,7 +115,7 @@
                   'text-indigo-500': corista.voice_part === 'Regência'
                 }">
                   <span class="material-symbols-outlined text-[14px]">music_note</span>
-                  {{corista.voice_part || '-'}}
+                  {{ (corista.voice_part || '-') | uppercase }}
                 </span>
                 <span class="hidden sm:inline">&bull;</span>
                 <span class="flex items-center gap-1">
@@ -128,7 +128,7 @@
                   'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400': corista.status === 'pending',
                   'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-400': corista.status === 'rejected'
                  }">
-                  {{corista.status === 'approved' ? 'Aprovado' : corista.status === 'pending' ? 'Pendente' : 'Inativo'}}
+                  {{ (corista.status === 'approved' ? 'Aprovado' : corista.status === 'pending' ? 'Pendente' : 'Inativo') | uppercase }}
                 </span>
               </div>
             </div>
@@ -170,45 +170,45 @@
           </button>
         </div>
         
-        <div class="space-y-4" *ngIf="selectedCorista() as corista">
-          <div>
-            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nome Completo</label>
-            <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.full_name" />
+        <div *ngIf="selectedCorista() as corista">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Completo</label>
+            <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.full_name" appUppercase />
           </div>
 
           <!-- Celular & Data de Nascimento -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Celular</label>
-              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="(11) 99999-9999" [(ngModel)]="corista.celular" />
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Celular</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="(11) 99999-9999" [(ngModel)]="corista.celular" mask="(00) 00000-0000" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Data Nasc.</label>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Data Nascimento</label>
               <input type="date" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.data_nascimento" />
             </div>
           </div>
 
           <!-- RG & Órgão -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">RG</label>
-              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="00.000.000-0" [(ngModel)]="corista.rg" />
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">RG</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="00.000.000-0" [(ngModel)]="corista.rg" appUppercase />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Órgão Emissor</label>
-              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="SSP" [(ngModel)]="corista.orgao_emissor" />
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Órgão Emissor</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="SSP" [(ngModel)]="corista.orgao_emissor" appUppercase />
             </div>
           </div>
 
           <!-- CPF & Endereço -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div>
-              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">CPF</label>
-              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="000.000.000-00" [(ngModel)]="corista.cpf" />
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CPF</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="000.000.000-00" [(ngModel)]="corista.cpf" mask="000.000.000-00" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Endereço</label>
-              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="Rua, Número, Bairro" [(ngModel)]="corista.endereco" />
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Endereço</label>
+              <input type="text" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" placeholder="Rua, Número, Bairro" [(ngModel)]="corista.endereco" appUppercase />
             </div>
           </div>
           
@@ -251,7 +251,7 @@
           <span class="material-symbols-outlined text-3xl">warning</span>
         </div>
         <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Inativar Corista?</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Ao inativar <strong>{{coristaToDelete()?.full_name}}</strong>, o cadastro permanecerá no sistema como "Rejeitado" para manter o histórico de presenças.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Ao inativar <strong>{{ coristaToDelete()?.full_name | uppercase }}</strong>, o cadastro permanecerá no sistema como "Rejeitado" para manter o histórico de presenças.</p>
         
         <div class="flex gap-3">
           <button (click)="closeDeleteModal()" class="flex-1 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancelar</button>

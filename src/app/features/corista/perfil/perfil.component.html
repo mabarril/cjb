@@ -48,12 +48,11 @@
                     <label
                         class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nome
                         Completo</label>
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">badge</span>
+                    <div>
                         <input type="text" [(ngModel)]="fullName"
-                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                            placeholder="Seu nome completo">
+                               appUppercase
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-4 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                               placeholder="Seu nome completo">
                     </div>
                 </div>
 
@@ -62,12 +61,11 @@
                     <label
                         class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nome
                         de Usuário (Username)</label>
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">alternate_email</span>
+                    <div>
                         <input type="text" [(ngModel)]="username"
-                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                            placeholder="ex: joao_silva">
+                               appUppercase
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-4 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                               placeholder="ex: joao_silva">
                     </div>
                 </div>
 
@@ -75,12 +73,11 @@
                 <div class="space-y-2">
                     <label
                         class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">RG</label>
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">badge</span>
+                    <div>
                         <input type="text" [(ngModel)]="rg"
-                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                            placeholder="Seu RG">
+                               appUppercase
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-4 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                               placeholder="00.000.000-0">
                     </div>
                 </div>
 
@@ -101,12 +98,11 @@
                 <div class="space-y-2">
                     <label
                         class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">CPF</label>
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">pin</span>
-                        <input type="text" [ngModel]="cpf" (ngModelChange)="onCpfChange($event)" maxlength="14"
-                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                            placeholder="Seu CPF">
+                    <div>
+                        <input type="text" [(ngModel)]="cpf"
+                               mask="000.000.000-00"
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-4 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                               placeholder="000.000.000-00">
                     </div>
                 </div>
 
@@ -126,12 +122,11 @@
                 <div class="space-y-2">
                     <label
                         class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Celular</label>
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">smartphone</span>
-                        <input type="text" [ngModel]="celular" (ngModelChange)="onCelularChange($event)" maxlength="15"
-                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                            placeholder="Seu celular / WhatsApp">
+                    <div>
+                        <input type="text" [(ngModel)]="celular"
+                               mask="(00) 00000-0000"
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-4 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                               placeholder="(11) 99999-9999">
                     </div>
                 </div>
 
@@ -139,12 +134,11 @@
                 <div class="space-y-2">
                     <label
                         class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Endereço</label>
-                    <div class="relative">
-                        <span
-                            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">home</span>
+                    <div>
                         <input type="text" [(ngModel)]="endereco"
-                            class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
-                            placeholder="Seu endereço completo">
+                               appUppercase
+                               class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl py-3.5 pl-4 pr-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                               placeholder="Rua Exemplo, 123, Bairro">
                     </div>
                 </div>
 

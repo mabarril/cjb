@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService, Profile } from '../../../core/supabase/supabase.service';
 import { Router } from '@angular/router';
+import { NgxMaskDirective } from 'ngx-mask';
+import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
 
 @Component({
     selector: 'app-perfil',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, NgxMaskDirective, UppercaseDirective],
     templateUrl: './perfil.component.html',
 })
 export class PerfilComponent implements OnInit {
@@ -66,40 +68,6 @@ export class PerfilComponent implements OnInit {
                 this.previewUrl = e.target?.result as string;
             };
             reader.readAsDataURL(file);
-        }
-    }
-
-    onCpfChange(value: string) {
-        if (!value) {
-            this.cpf = '';
-            return;
-        }
-        let v = value.replace(/\D/g, '').substring(0, 11);
-        if (v.length <= 3) {
-            this.cpf = v;
-        } else if (v.length <= 6) {
-            this.cpf = `${v.substring(0, 3)}.${v.substring(3)}`;
-        } else if (v.length <= 9) {
-            this.cpf = `${v.substring(0, 3)}.${v.substring(3, 6)}.${v.substring(6)}`;
-        } else {
-            this.cpf = `${v.substring(0, 3)}.${v.substring(3, 6)}.${v.substring(6, 9)}-${v.substring(9)}`;
-        }
-    }
-
-    onCelularChange(value: string) {
-        if (!value) {
-            this.celular = '';
-            return;
-        }
-        let v = value.replace(/\D/g, '').substring(0, 11);
-        if (v.length <= 2) {
-            this.celular = v.length === 0 ? '' : `(${v}`;
-        } else if (v.length <= 6) {
-            this.celular = `(${v.substring(0, 2)}) ${v.substring(2)}`;
-        } else if (v.length <= 10) {
-            this.celular = `(${v.substring(0, 2)}) ${v.substring(2, 6)}-${v.substring(6)}`;
-        } else {
-            this.celular = `(${v.substring(0, 2)}) ${v.substring(2, 7)}-${v.substring(7)}`;
         }
     }
 
