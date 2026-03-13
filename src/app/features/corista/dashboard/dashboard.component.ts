@@ -155,6 +155,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
             .subscribe();
     }
 
+    goToAgenda() {
+        this.router.navigate(['/agenda']);
+    }
+
     goToAdmin() {
         this.router.navigate(['/admin']);
     }

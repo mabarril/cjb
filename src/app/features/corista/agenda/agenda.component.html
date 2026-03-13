@@ -1,0 +1,99 @@
+<div class="bg-slate-50 dark:bg-slate-950 min-h-screen pb-24 transition-colors duration-300 relative">
+
+    <!-- Loading Spinner -->
+    @if(isLoading()) {
+    <div class="fixed inset-0 z-50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-sm flex items-center justify-center">
+        <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+    }
+
+    <!-- Header -->
+    <header class="bg-primary dark:bg-slate-900 text-white rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div class="px-6 pt-12 pb-8 relative z-10 flex items-center gap-4">
+            <h1 class="text-2xl font-bold tracking-tight">Agenda de Ensaios</h1>
+        </div>
+    </header>
+
+    <main class="px-6 py-6 space-y-6 max-w-lg mx-auto relative z-20">
+
+        @if(errorMessage()) {
+        <div class="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-rose-600 dark:text-rose-400">
+            <span class="material-symbols-outlined">error</span>
+            <p class="text-sm font-medium">{{ errorMessage() }}</p>
+        </div>
+        }
+
+        <!-- Lista de Ensaios -->
+        @if(!isLoading() && upcomingSessions().length === 0) {
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-100 dark:border-slate-800 text-center shadow-sm">
+            <span class="material-symbols-outlined text-slate-300 dark:text-slate-700 text-5xl mb-3 block">event_busy</span>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Agenda Livre</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-sm">Não há ensaios programados para os próximos dias.</p>
+        </div>
+        }
+
+        <div class="space-y-4">
+            @for(session of upcomingSessions(); track session.id) {
+            <div
+                class="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border transition-all relative overflow-hidden"
+                [ngClass]="session.status === 'ativo' ? 'border-primary shadow-primary/20 scale-[1.02]' : 'border-slate-100 dark:border-slate-800'">
+                
+                @if(session.status === 'ativo') {
+                <div class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl shadow-sm z-10 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping absolute"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-white relative"></span>
+                    Acontecendo Agora
+                </div>
+                }
+
+                <div class="flex items-start gap-4">
+                    <!-- Icon Bubble -->
+                    <div [ngClass]="session.status === 'ativo' ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'"
+                        class="w-12 h-12 rounded-full flex flex-col items-center justify-center shrink-0 shadow-inner">
+                        <span class="text-xs font-bold leading-none">{{ session.scheduled_at | date:'dd' }}</span>
+                        <span class="text-[10px] uppercase font-semibold leading-none mt-0.5">{{ session.scheduled_at | date:'MMM':'':'pt' }}</span>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="flex-1 mt-0.5">
+                        <h3 class="font-bold text-slate-900 dark:text-slate-100 text-base leading-tight">{{ session.title | uppercase }}</h3>
+                        
+                        <div class="mt-2 text-sm text-slate-500 dark:text-slate-400 space-y-1">
+                            <p class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] opacity-70">schedule</span>
+                                <span>{{ session.scheduled_at | date:'HH:mm' }}</span>
+                                @if(session.end_at) {
+                                    <span>- {{ session.end_at | date:'HH:mm' }}</span>
+                                }
+                            </p>
+                            <p class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] opacity-70">location_on</span>
+                                <span class="truncate">{{ session.location | uppercase }}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 pb-safe pt-2 px-6 z-50">
+        <div class="flex justify-between items-center max-w-sm mx-auto h-16">
+            <button (click)="goToDashboard()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-16 transition-colors">
+                <span class="material-symbols-outlined">home</span>
+                <span class="text-[10px] font-medium">Início</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-primary w-16">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+                <span class="text-[10px] font-medium">Agenda</span>
+            </button>
+            <button (click)="goToProfile()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-16 transition-colors">
+                <span class="material-symbols-outlined">person</span>
+                <span class="text-[10px] font-medium">Perfil</span>
+            </button>
+        </div>
+    </nav>
+</div>

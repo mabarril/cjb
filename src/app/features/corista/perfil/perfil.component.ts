@@ -58,6 +58,10 @@ export class PerfilComponent implements OnInit {
     goBack() {
         this.router.navigate(['/dashboard']);
     }
+    
+    goToAgenda() {
+        this.router.navigate(['/agenda']);
+    }
 
     onFileSelected(event: any) {
         const file = event.target.files[0];

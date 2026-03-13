@@ -64,6 +64,20 @@ export class PresencaService {
         );
     }
 
+    getUpcomingSessions(): Observable<Session[]> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('*')
+                .in('status', ['agendado', 'ativo'])
+                .order('scheduled_at', { ascending: true })
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return res.data as Session[];
+                })
+        );
+    }
+
     createSession(data: SessionFormData): Observable<Session> {
         return from(
             this.supabaseService.client
