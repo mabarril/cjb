@@ -41,6 +41,7 @@
           <div>
             <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="status">Status</label>
             <select id="status" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
+              <option value="active">Ativos (Aprov/Pend)</option>
               <option value="">Todos</option>
               <option value="approved">Aprovados</option>
               <option value="pending">Pendentes</option>

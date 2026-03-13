@@ -25,7 +25,7 @@ export class Coristas implements OnInit {
   // Filters
   searchTerm = signal('');
   filterNaipe = signal<string>('');
-  filterStatus = signal<string>('');
+  filterStatus = signal<string>('active');
 
   // Edit Modal
   selectedCorista = signal<Profile | null>(null);
@@ -39,7 +39,14 @@ export class Coristas implements OnInit {
     return this.coristas().filter(c => {
       const matchName = c.full_name?.toLowerCase().includes(this.searchTerm().toLowerCase()) || false;
       const matchNaipe = this.filterNaipe() ? c.voice_part === this.filterNaipe() : true;
-      const matchStatus = this.filterStatus() ? c.status === this.filterStatus() : true;
+      
+      let matchStatus = true;
+      if (this.filterStatus() === 'active') {
+        matchStatus = c.status === 'approved' || c.status === 'pending';
+      } else if (this.filterStatus()) {
+        matchStatus = c.status === this.filterStatus();
+      }
+      
       return matchName && matchNaipe && matchStatus;
     });
   });
