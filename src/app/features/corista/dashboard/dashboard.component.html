@@ -125,9 +125,6 @@
                 <div class="flex items-end gap-2">
                     <span class="text-3xl font-bold text-slate-900 dark:text-slate-100 leading-none">{{ faltas()
                         }}</span>
-                    <span
-                        class="text-rose-500 text-sm mb-0.5 font-medium border-l border-slate-200 dark:border-slate-700 pl-2 ml-1">Limit
-                        12</span>
                 </div>
                 }
             </div>
@@ -138,7 +135,7 @@
         <section>
             <div class="flex justify-between items-center mb-4 px-1">
                 <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Últimos Ensaios</h2>
-                <span class="text-xs text-slate-400">{{ presencas() }} de {{ presencas() + faltas() }} ensaios</span>
+                <span class="text-xs text-slate-400">{{ presencas() }} de {{ totalFinalizedSessions() }} ensaios</span>
             </div>
 
             <div class="space-y-3">

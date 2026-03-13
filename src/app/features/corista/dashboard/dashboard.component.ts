@@ -31,8 +31,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
     activeSession = signal<Session | null>(null);
 
     // Computed stats from real data
-    presencas = computed(() => this.attendances().filter(a => a.status === 'presente').length);
-    faltas = computed(() => this.attendances().filter(a => a.status !== 'presente').length);
+    presencas = computed(() => {
+        const currentYear = new Date().getFullYear();
+        return this.attendances().filter(a => {
+            if (a.status !== 'presente') return false;
+            const attYear = new Date(a.scanned_at).getFullYear();
+            return attYear === currentYear;
+        }).length;
+    });
+
+    totalFinalizedSessions = signal<number>(0);
+    
+    // Faltas = Ensaios finalizados no ano - Presenças no ano
+    faltas = computed(() => Math.max(0, this.totalFinalizedSessions() - this.presencas()));
+    
     recentAttendances = computed(() => this.attendances().slice(0, 5));
 
     // Intelligence: Show scanner only if there is an active session AND user is not present in it
@@ -46,8 +58,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     frequencia = computed(() => {
-        const total = this.presencas() + this.faltas();
-        const p = total === 0 ? 0 : Math.round((this.presencas() / total) * 100);
+        const total = this.totalFinalizedSessions();
+        const p = total === 0 ? 100 : Math.round((this.presencas() / total) * 100);
         return {
             valor: p,
             cor: p >= 75 ? 'text-emerald-500' : p >= 50 ? 'text-amber-500' : 'text-rose-500'
@@ -81,6 +93,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     this.profile.set(prof);
                     this.isLoading.set(false);
                     // Load real data and subscribe to realtime
+                    this.loadTotalFinalizedSessions();
                     this.loadAttendances(prof.id);
                     this.loadActiveSession();
                     this.subscribeToAttendances(prof.id);
@@ -101,6 +114,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 console.error('Erro ao carregar histórico:', err);
                 this.isStatsLoading.set(false);
             }
+        });
+    }
+
+    private loadTotalFinalizedSessions() {
+        this.presencaService.getFinalizedSessionsCountThisYear().subscribe(count => {
+            this.totalFinalizedSessions.set(count);
         });
     }
 
@@ -130,6 +149,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 },
                 () => {
                     this.loadActiveSession();
+                    this.loadTotalFinalizedSessions(); // Se uma sessão for finalizada, atualiza o count
                 }
             )
             .subscribe();

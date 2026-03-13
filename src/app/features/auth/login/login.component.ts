@@ -3,13 +3,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgxMaskDirective } from 'ngx-mask';
 import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, NgxMaskDirective, UppercaseDirective],
+    imports: [ReactiveFormsModule, CommonModule, UppercaseDirective],
     templateUrl: './login.component.html',
 })
 export class LoginComponent {

@@ -311,4 +311,20 @@ export class PresencaService {
                 })
         );
     }
+
+    getFinalizedSessionsCountThisYear(): Observable<number> {
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1).toISOString();
+        const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59).toISOString();
+
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('*', { count: 'exact', head: true })
+                .eq('status', 'finalizado')
+                .gte('scheduled_at', startOfYear)
+                .lte('scheduled_at', endOfYear)
+                .then(res => res.count || 0)
+        );
+    }
 }
