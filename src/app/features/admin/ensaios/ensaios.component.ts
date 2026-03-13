@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PresencaService, Session, SessionFormData } from '../../../core/presenca/presenca.service';
+import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
 
 @Component({
     selector: 'app-ensaios',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [CommonModule, ReactiveFormsModule, UppercaseDirective],
     templateUrl: './ensaios.component.html',
 })
 export class EnsaiosComponent implements OnInit {

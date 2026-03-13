@@ -64,6 +64,20 @@ export class PresencaService {
         );
     }
 
+    getUpcomingSessions(): Observable<Session[]> {
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('*')
+                .in('status', ['agendado', 'ativo'])
+                .order('scheduled_at', { ascending: true })
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return res.data as Session[];
+                })
+        );
+    }
+
     createSession(data: SessionFormData): Observable<Session> {
         return from(
             this.supabaseService.client
@@ -309,6 +323,22 @@ export class PresencaService {
                     });
                     return counts;
                 })
+        );
+    }
+
+    getFinalizedSessionsCountThisYear(): Observable<number> {
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1).toISOString();
+        const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59).toISOString();
+
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('*', { count: 'exact', head: true })
+                .eq('status', 'finalizado')
+                .gte('scheduled_at', startOfYear)
+                .lte('scheduled_at', endOfYear)
+                .then(res => res.count || 0)
         );
     }
 }

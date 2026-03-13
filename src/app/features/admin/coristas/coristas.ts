@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../../core/admin/admin.service';
 import { Profile } from '../../../core/supabase/supabase.service';
+import { NgxMaskDirective } from 'ngx-mask';
+import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
 
 @Component({
   selector: 'app-coristas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxMaskDirective, UppercaseDirective],
   templateUrl: './coristas.html',
   styleUrl: './coristas.css'
 })
@@ -23,7 +25,7 @@ export class Coristas implements OnInit {
   // Filters
   searchTerm = signal('');
   filterNaipe = signal<string>('');
-  filterStatus = signal<string>('');
+  filterStatus = signal<string>('active');
 
   // Edit Modal
   selectedCorista = signal<Profile | null>(null);
@@ -37,7 +39,14 @@ export class Coristas implements OnInit {
     return this.coristas().filter(c => {
       const matchName = c.full_name?.toLowerCase().includes(this.searchTerm().toLowerCase()) || false;
       const matchNaipe = this.filterNaipe() ? c.voice_part === this.filterNaipe() : true;
-      const matchStatus = this.filterStatus() ? c.status === this.filterStatus() : true;
+      
+      let matchStatus = true;
+      if (this.filterStatus() === 'active') {
+        matchStatus = c.status === 'approved' || c.status === 'pending';
+      } else if (this.filterStatus()) {
+        matchStatus = c.status === this.filterStatus();
+      }
+      
       return matchName && matchNaipe && matchStatus;
     });
   });

@@ -18,6 +18,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/corista/perfil/perfil.component').then(m => m.PerfilComponent)
     },
     {
+        path: 'agenda',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/corista/agenda/agenda.component').then(m => m.AgendaComponent)
+    },
+    {
         path: 'admin',
         canActivate: [authGuard, adminGuard],
         loadComponent: () => import('./features/admin/painel/painel.component').then(m => m.PainelComponent)

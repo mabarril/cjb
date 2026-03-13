@@ -78,14 +78,14 @@
                     @if (profile()?.avatar_url) {
                     <img [src]="profile()?.avatar_url" class="w-full h-full object-cover" alt="Avatar">
                     } @else {
-                    <span class="text-2xl font-bold uppercase">{{ profile()!.username.charAt(0) }}</span>
+                    <span class="text-2xl font-bold uppercase">{{ profile()!.username.charAt(0) | uppercase }}</span>
                     }
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight leading-tight">{{ profile()!.username }}</h1>
+                    <h1 class="text-xl font-bold tracking-tight leading-tight">{{ profile()!.username | uppercase }}</h1>
                     <p class="text-primary-foreground/80 text-sm flex items-center gap-1 mt-1">
                         <span class="material-symbols-outlined text-[16px]">music_note</span>
-                        {{ profile()!.voice_part }}
+                        {{ profile()!.voice_part | uppercase }}
                     </p>
                 </div>
             </div>
@@ -125,9 +125,6 @@
                 <div class="flex items-end gap-2">
                     <span class="text-3xl font-bold text-slate-900 dark:text-slate-100 leading-none">{{ faltas()
                         }}</span>
-                    <span
-                        class="text-rose-500 text-sm mb-0.5 font-medium border-l border-slate-200 dark:border-slate-700 pl-2 ml-1">Limit
-                        12</span>
                 </div>
                 }
             </div>
@@ -138,7 +135,7 @@
         <section>
             <div class="flex justify-between items-center mb-4 px-1">
                 <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Últimos Ensaios</h2>
-                <span class="text-xs text-slate-400">{{ presencas() }} de {{ presencas() + faltas() }} ensaios</span>
+                <span class="text-xs text-slate-400">{{ presencas() }} de {{ totalFinalizedSessions() }} ensaios</span>
             </div>
 
             <div class="space-y-3">
@@ -176,8 +173,8 @@
                                 'close' }}</span>
                         </div>
                         <div>
-                            <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">{{ att.session?.title ??
-                                'Ensaio' }}</p>
+                            <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">{{ (att.session?.title ??
+                                'Ensaio') | uppercase }}</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ att.scanned_at | date:'EEEE,
                                 dd MMM · HH:mm':'':'pt' }}</p>
                         </div>
@@ -185,7 +182,7 @@
                     <span [ngClass]="att.status === 'presente'
                         ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
                         : 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20'"
-                        class="text-xs font-semibold px-2.5 py-1 rounded-lg capitalize">{{ att.status }}</span>
+                        class="text-xs font-semibold px-2.5 py-1 rounded-lg capitalize">{{ att.status | uppercase }}</span>
                 </div>
                 }
             </div>
@@ -211,7 +208,7 @@
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
                 <span class="text-[10px] font-medium">Início</span>
             </button>
-            <button
+            <button (click)="goToAgenda()"
                 class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 w-16 transition-colors">
                 <span class="material-symbols-outlined">calendar_month</span>
                 <span class="text-[10px] font-medium">Agenda</span>
