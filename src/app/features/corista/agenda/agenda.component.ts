@@ -36,6 +36,12 @@ export class AgendaComponent implements OnInit {
     });
   }
 
+  // Helper para formatar o mês sem ponto
+  getMonthAbbr(date: string): string {
+    const month = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(new Date(date));
+    return month.replace('.', '').toUpperCase();
+  }
+
   goBack() {
     this.router.navigate(['/dashboard']);
   }
