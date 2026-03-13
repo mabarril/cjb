@@ -19,6 +19,6 @@ describe('App', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('div.fixed.bottom-2')?.textContent).toContain('Versão');
+    expect(compiled.querySelector('app-footer')).toBeTruthy();
   });
 });
