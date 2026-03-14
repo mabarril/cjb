@@ -200,9 +200,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
                 const constraints: MediaStreamConstraints = {
                     video: {
-                        facingMode: { ideal: 'environment' },
-                        width: { min: 1280, ideal: 1920, max: 3840 },
-                        height: { min: 720, ideal: 1080, max: 2160 }
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        advanced: [
+                            { focusMode: 'continuous' } as any
+                        ]
                     }
                 };
 
