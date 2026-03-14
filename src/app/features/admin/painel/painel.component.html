@@ -211,6 +211,11 @@
 
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-md font-bold text-slate-900 dark:text-slate-100">Lista de Chamada</h3>
+                    <button (click)="openManualModal()"
+                        class="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">person_add</span>
+                        Adicionar
+                    </button>
                 </div>
 
                 <!-- Attendee List -->
@@ -386,6 +391,68 @@
             }
         </section>
     </main>
+
+    <!-- Modal Presença Manual -->
+    @if(showManualModal()) {
+    <div class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col shadow-2xl animate-slide-up">
+            <!-- Header Modal -->
+            <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Registrar Presença</h3>
+                    <p class="text-xs text-slate-500">{{ selectedSession()?.title }}</p>
+                </div>
+                <button (click)="closeManualModal()" class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="p-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="relative flex items-center">
+                    <span class="material-symbols-outlined absolute left-3 text-slate-400">search</span>
+                    <input type="text" 
+                           [value]="searchQuery()" 
+                           (input)="searchQuery.set($any($event.target).value)"
+                           placeholder="Buscar corista..." 
+                           class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/50 outline-none">
+                </div>
+            </div>
+
+            <!-- Corista List -->
+            <div class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                @for(corista of availableCoristas(); track corista.id) {
+                    <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 group transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                                {{ corista.username.charAt(0) | uppercase }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ corista.username | uppercase }}</p>
+                                <p class="text-[10px] text-slate-500 uppercase">{{ corista.voice_part }}</p>
+                            </div>
+                        </div>
+                        <button (click)="registerManualPresence(corista.id)"
+                                class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all flex items-center justify-center shadow-sm">
+                            <span class="material-symbols-outlined text-[20px]">check</span>
+                        </button>
+                    </div>
+                }
+
+                @if(availableCoristas().length === 0) {
+                    <div class="py-10 text-center text-slate-400">
+                        <p class="text-sm">Nenhum corista disponível para este filtro.</p>
+                    </div>
+                }
+            </div>
+            
+            <!-- Footer Modal -->
+            <div class="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 rounded-b-3xl text-center">
+                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Apenas coristas aprovados</p>
+            </div>
+        </div>
+    </div>
+    }
 </div>
 
 <style>

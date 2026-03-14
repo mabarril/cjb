@@ -34,6 +34,7 @@ export interface AttendanceWithSession {
 
 export interface AttendanceWithProfile {
     id: string;
+    user_id: string;
     scanned_at: string;
     status: 'presente' | 'ausente' | 'atrasado';
     profile: {
@@ -241,6 +242,27 @@ export class PresencaService {
         );
     }
 
+    registerAttendanceManually(sessionId: string, userId: string): Observable<any> {
+        return from(
+            this.supabaseService.client
+                .from('attendances')
+                .insert({
+                    session_id: sessionId,
+                    user_id: userId,
+                    status: 'presente'
+                })
+                .then(res => {
+                    if (res.error) {
+                        if (res.error.code === '23505') {
+                            throw new Error("Presença já registrada para este corista.");
+                        }
+                        throw res.error;
+                    }
+                    return { success: true };
+                })
+        );
+    }
+
     // --- Histórico do Corista ---
 
     getUserAttendances(userId: string): Observable<AttendanceWithSession[]> {
@@ -288,6 +310,7 @@ export class PresencaService {
                 .from('attendances')
                 .select(`
                     id,
+                    user_id,
                     scanned_at,
                     status,
                     profile:profiles ( username, full_name, voice_part )

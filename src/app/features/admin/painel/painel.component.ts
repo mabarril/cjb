@@ -28,6 +28,9 @@ export class PainelComponent implements OnInit {
 
     pendingCoristas = signal<Profile[]>([]);
     isLoading = signal(true);
+    showManualModal = signal(false);
+    searchQuery = signal('');
+    allActiveCoristas = signal<Profile[]>([]);
 
     // Birthdays
     selectedMonth = signal<number>(new Date().getMonth() + 1);
@@ -74,6 +77,19 @@ export class PainelComponent implements OnInit {
     attendees = signal<AttendanceWithProfile[]>([]);
     isLoadingAttendees = signal(false);
 
+    availableCoristas = computed(() => {
+        const active = this.allActiveCoristas();
+        const currentAttendeesIds = this.attendees().map(a => a.user_id);
+        const query = this.searchQuery().toLowerCase();
+
+        return active
+            .filter(c => !currentAttendeesIds.includes(c.id))
+            .filter(c => 
+                c.username.toLowerCase().includes(query) || 
+                c.full_name?.toLowerCase().includes(query)
+            );
+    });
+
     ngOnInit() {
         // Check if user is actually admin
         this.supabaseService.profile$.subscribe(profile => {
@@ -92,6 +108,15 @@ export class PainelComponent implements OnInit {
         this.loadAllSessions();
         this.loadBirthdays();
         this.loadCoristasStats();
+        this.loadAllActiveCoristas();
+    }
+
+    loadAllActiveCoristas() {
+        this.adminService.getCoristas().subscribe({
+            next: (coristas) => {
+                this.allActiveCoristas.set(coristas.filter(c => c.status === 'approved'));
+            }
+        });
     }
 
     loadPendingCoristas() {
@@ -241,6 +266,31 @@ export class PainelComponent implements OnInit {
                 console.error("Erro ao carregar presentes:", err);
                 this.isLoadingAttendees.set(false);
             }
+        });
+    }
+
+
+    openManualModal() {
+        this.searchQuery.set('');
+        this.showManualModal.set(true);
+    }
+
+    closeManualModal() {
+        this.showManualModal.set(false);
+    }
+
+    registerManualPresence(userId: string) {
+        const session = this.selectedSession();
+        if (!session) return;
+
+        this.presencaService.registerAttendanceManually(session.id, userId).subscribe({
+            next: () => {
+                this.loadAttendees(session.id);
+                // We keep modal open if they want to add more, or close? 
+                // Let's keep it open but maybe clear search
+                this.searchQuery.set('');
+            },
+            error: (err) => alert(err.message)
         });
     }
 
