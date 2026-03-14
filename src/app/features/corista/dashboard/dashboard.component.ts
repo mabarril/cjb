@@ -183,7 +183,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.router.navigate(['/login']);
     }
 
-    scanQRCode() {
+    async scanQRCode() {
         this.isScanning.set(true);
         this.scannerError.set('');
         this.scannerSuccess.set('');
@@ -198,7 +198,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     return;
                 }
 
-                this.scannerControls = await this.codeReader.decodeFromVideoDevice(undefined, videoElement, (result, _error, controls) => {
+                const constraints:
+                    MediaStreamConstraints={
+                        video:{
+                            facingMode:{ideal:'environment'},
+                            width:{ideal:1280},
+                            height:{ideal:720}
+                         }
+                    };
+
+                this.scannerControls = await this.codeReader.decodeFromConstraints(constraints, videoElement, (result, _error, controls) => {
                     if (result) {
                         controls.stop();
                         this.handleScannedToken(result.getText());
