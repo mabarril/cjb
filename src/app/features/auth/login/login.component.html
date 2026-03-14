@@ -21,7 +21,7 @@
                     Coral Jovem de Brasília
                 </h2>
                 <p class="text-slate-500 dark:text-slate-400 text-sm font-normal mt-2 text-center">
-                    {{ isLoginMode() ? 'Entre com seus dados para continuar' : 'Crie sua conta no sistema' }}
+                    {{ isRecoveryMode() ? 'Digite sua nova senha de acesso' : (isForgotPasswordMode() ? 'Recupere seu acesso ao sistema' : (isLoginMode() ? 'Entre com seus dados para continuar' : 'Crie sua conta no sistema')) }}
                 </p>
             </div>
 
@@ -34,7 +34,7 @@
             }
 
             <!-- Login Form -->
-            @if(isLoginMode()) {
+            @if(isLoginMode() && !isForgotPasswordMode() && !isRecoveryMode()) {
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
                 <div class="flex flex-col gap-2">
                     <label class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">
@@ -54,6 +54,10 @@
                         <label class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">
                             Senha
                         </label>
+                        <button type="button" (click)="toggleForgotPasswordMode()"
+                                class="text-primary text-xs font-bold hover:underline transition-colors focus:outline-none">
+                            Esqueceu a senha?
+                        </button>
                     </div>
                     <div class="relative flex items-center">
                         <span
@@ -72,8 +76,62 @@
             </form>
             }
 
+            <!-- Forgot Password Form -->
+            @if(isForgotPasswordMode() && !isRecoveryMode()) {
+            <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmit()" class="space-y-5">
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">
+                        E-mail cadastrado
+                    </label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none">mail</span>
+                        <input formControlName="email"
+                            class="form-input block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+                            placeholder="seu@email.com" type="email" />
+                    </div>
+                </div>
+
+                <button [disabled]="forgotPasswordForm.invalid || isLoading()"
+                    class="w-full bg-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 focus:outline-none active:scale-[0.98]"
+                    type="submit">
+                    Enviar Instruções
+                </button>
+
+                <div class="text-center mt-4">
+                    <button type="button" (click)="toggleForgotPasswordMode()"
+                            class="text-slate-500 dark:text-slate-400 text-sm font-bold hover:text-slate-700 dark:hover:text-slate-200 transition-colors focus:outline-none flex items-center justify-center gap-1 mx-auto">
+                        <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                        Voltar para o Login
+                    </button>
+                </div>
+            </form>
+            }
+
+            <!-- Recovery Password Form -->
+            @if(isRecoveryMode()) {
+            <form [formGroup]="recoveryForm" (ngSubmit)="onSubmit()" class="space-y-5">
+                <div class="flex flex-col gap-2">
+                    <label class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">
+                        Nova Senha
+                    </label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-slate-400 dark:text-slate-500 pointer-events-none">lock</span>
+                        <input formControlName="password"
+                            class="form-input block w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400"
+                            placeholder="Min. 6 caracteres" type="password" />
+                    </div>
+                </div>
+
+                <button [disabled]="recoveryForm.invalid || isLoading()"
+                    class="w-full bg-primary disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 focus:outline-none active:scale-[0.98]"
+                    type="submit">
+                    Atualizar Senha
+                </button>
+            </form>
+            }
+
             <!-- Register Form -->
-            @if(!isLoginMode()) {
+            @if(!isLoginMode() && !isForgotPasswordMode() && !isRecoveryMode()) {
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-4">
 
                 <div class="flex flex-col gap-2">
@@ -129,6 +187,7 @@
 
         </div>
 
+        @if(!isForgotPasswordMode() && !isRecoveryMode()) {
         <div class="px-8 pb-8 text-center">
             <div class="relative flex items-center py-4">
                 <div class="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
@@ -143,6 +202,7 @@
                 </button>
             </p>
         </div>
+        }
 
     </div>
 </div>

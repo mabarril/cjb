@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Router } from '@angular/router';
@@ -11,17 +11,27 @@ import { UppercaseDirective } from '../../../core/directives/uppercase.directive
     imports: [ReactiveFormsModule, CommonModule, UppercaseDirective],
     templateUrl: './login.component.html',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     private fb = inject(FormBuilder);
     private authService = inject(AuthService);
     private router = inject(Router);
 
     isLoginMode = signal(true);
+    isForgotPasswordMode = signal(false);
+    isRecoveryMode = signal(false);
     isLoading = signal(false);
     errorMessage = signal('');
 
     loginForm: FormGroup = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+
+    forgotPasswordForm: FormGroup = this.fb.group({
+        email: ['', [Validators.required, Validators.email]]
+    });
+
+    recoveryForm: FormGroup = this.fb.group({
         password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
@@ -33,13 +43,77 @@ export class LoginComponent {
         password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
+    ngOnInit() {
+        if (window.location.hash.includes('type=recovery')) {
+            this.isRecoveryMode.set(true);
+            this.isLoginMode.set(false);
+            this.isForgotPasswordMode.set(false);
+        }
+    }
+
     toggleMode() {
         this.isLoginMode.set(!this.isLoginMode());
+        this.isForgotPasswordMode.set(false);
+        this.errorMessage.set('');
+    }
+
+    toggleForgotPasswordMode() {
+        this.isForgotPasswordMode.set(!this.isForgotPasswordMode());
         this.errorMessage.set('');
     }
 
     async onSubmit() {
         this.errorMessage.set('');
+
+        if (this.isRecoveryMode()) {
+            if (this.recoveryForm.invalid) return;
+
+            this.isLoading.set(true);
+            const { password } = this.recoveryForm.value;
+
+            this.authService.updateUserPassword(password).subscribe({
+                next: (res) => {
+                    this.isLoading.set(false);
+                    if (res.error) {
+                        this.errorMessage.set(res.error.message);
+                    } else {
+                        this.errorMessage.set('Senha atualizada com sucesso! Você já pode acessar o sistema.');
+                        this.isRecoveryMode.set(false);
+                        this.isLoginMode.set(true);
+                        this.recoveryForm.reset();
+                    }
+                },
+                error: (err) => {
+                    this.isLoading.set(false);
+                    this.errorMessage.set('Falha ao atualizar a senha.');
+                }
+            });
+            return;
+        }
+
+        if (this.isForgotPasswordMode()) {
+            if (this.forgotPasswordForm.invalid) return;
+
+            this.isLoading.set(true);
+            const { email } = this.forgotPasswordForm.value;
+
+            this.authService.resetPasswordForEmail(email).subscribe({
+                next: (res) => {
+                    this.isLoading.set(false);
+                    if (res.error) {
+                        this.errorMessage.set(res.error.message);
+                    } else {
+                        this.errorMessage.set('Instruções para redefinir a senha foram enviadas para o seu e-mail.');
+                        this.forgotPasswordForm.reset();
+                    }
+                },
+                error: (err) => {
+                    this.isLoading.set(false);
+                    this.errorMessage.set('Falha ao solicitar a redefinição de senha.');
+                }
+            });
+            return;
+        }
 
         if (this.isLoginMode()) {
             if (this.loginForm.invalid) return;

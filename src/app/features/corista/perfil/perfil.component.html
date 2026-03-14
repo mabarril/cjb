@@ -186,6 +186,53 @@
                 }
             </button>
 
+            <!-- Change Password Section -->
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-6 mt-6">
+                <button (click)="toggleChangePassword()" 
+                        class="w-full text-slate-600 dark:text-slate-400 font-bold py-2 mb-4 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">{{ isChangingPassword() ? 'keyboard_arrow_up' : 'lock_reset' }}</span>
+                    {{ isChangingPassword() ? 'Cancelar Troca de Senha' : 'Alterar Senha de Acesso' }}
+                </button>
+
+                @if(isChangingPassword()) {
+                    <div class="space-y-4 animate-fade-in-down bg-slate-50 dark:bg-slate-800/20 p-5 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <!-- Nova Senha -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Nova Senha</label>
+                            <input type="password" [(ngModel)]="newPassword"
+                                   class="w-full bg-white dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                                   placeholder="Mínimo 6 caracteres">
+                        </div>
+                        
+                        <!-- Confirmar Nova Senha -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Confirmar Nova Senha</label>
+                            <input type="password" [(ngModel)]="confirmNewPassword"
+                                   class="w-full bg-white dark:bg-slate-800 border-none rounded-xl py-3 px-4 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                                   placeholder="Repita a nova senha">
+                        </div>
+
+                        <!-- Feedback Message -->
+                        @if (passwordMessage()) {
+                            <div class="p-3 text-sm font-medium rounded-xl mt-2 text-center"
+                                 [ngClass]="passwordMessage().includes('sucesso') ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 animate-shake'">
+                                {{ passwordMessage() }}
+                            </div>
+                        }
+
+                        <button (click)="updatePassword()" [disabled]="isSaving()"
+                                class="w-full bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-bold py-3 mt-2 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                            @if (isSaving()) {
+                                <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                Atualizando...
+                            } @else {
+                                Confirmar Nova Senha
+                            }
+                        </button>
+                    </div>
+                }
+            </div>
+
             <button (click)="goBack()" [disabled]="isSaving()"
                 class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold py-4 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95">
                 Cancelar
@@ -231,5 +278,20 @@
 
     .animate-shake {
         animation: shake 0.2s ease-in-out 0s 2;
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in-down {
+        animation: fadeInDown 0.3s ease-out forwards;
     }
 </style>

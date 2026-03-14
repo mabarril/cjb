@@ -5,6 +5,7 @@ import { SupabaseService, Profile } from '../../../core/supabase/supabase.servic
 import { Router } from '@angular/router';
 import { NgxMaskDirective } from 'ngx-mask';
 import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
     selector: 'app-perfil',
@@ -14,12 +15,15 @@ import { UppercaseDirective } from '../../../core/directives/uppercase.directive
 })
 export class PerfilComponent implements OnInit {
     private supabaseService = inject(SupabaseService);
+    private authService = inject(AuthService);
     private router = inject(Router);
 
     profile = signal<Profile | null>(null);
     isLoading = signal(true);
     isSaving = signal(false);
+    isChangingPassword = signal(false);
     uploadError = signal('');
+    passwordMessage = signal('');
 
     // Form fields
     fullName = '';
@@ -31,6 +35,10 @@ export class PerfilComponent implements OnInit {
     data_nascimento = '';
     endereco = '';
     celular = '';
+
+    // Password fields
+    newPassword = '';
+    confirmNewPassword = '';
 
     // Avatar preview
     previewUrl: string | null = null;
@@ -73,6 +81,44 @@ export class PerfilComponent implements OnInit {
             };
             reader.readAsDataURL(file);
         }
+    }
+
+    toggleChangePassword() {
+        this.isChangingPassword.set(!this.isChangingPassword());
+        this.passwordMessage.set('');
+        this.newPassword = '';
+        this.confirmNewPassword = '';
+    }
+
+    updatePassword() {
+        this.passwordMessage.set('');
+        
+        if (this.newPassword.length < 6) {
+            this.passwordMessage.set('A nova senha deve ter no mínimo 6 caracteres.');
+            return;
+        }
+
+        if (this.newPassword !== this.confirmNewPassword) {
+            this.passwordMessage.set('As senhas não coincidem.');
+            return;
+        }
+
+        this.isSaving.set(true);
+        this.authService.updateUserPassword(this.newPassword).subscribe({
+            next: (res) => {
+                this.isSaving.set(false);
+                if (res.error) {
+                    this.passwordMessage.set(res.error.message);
+                } else {
+                    this.passwordMessage.set('Senha atualizada com sucesso!');
+                    setTimeout(() => this.toggleChangePassword(), 2000); // Close after 2s
+                }
+            },
+            error: (err) => {
+                this.isSaving.set(false);
+                this.passwordMessage.set('Erro ao atualizar senha.');
+            }
+        });
     }
 
     async saveChanges() {
