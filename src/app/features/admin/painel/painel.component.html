@@ -424,12 +424,15 @@
                 @for(corista of availableCoristas(); track corista.id) {
                     <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800 group transition-colors">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
-                                {{ corista.username.charAt(0) | uppercase }}
+                            <div class="w-10 h-10 rounded-full overflow-hidden bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">
+                                <img *ngIf="corista.avatar_url" [src]="corista.avatar_url" class="w-full h-full object-cover">
+                                <span *ngIf="!corista.avatar_url">{{ corista.username.charAt(0) | uppercase }}</span>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">{{ corista.username | uppercase }}</p>
-                                <p class="text-[10px] text-slate-500 uppercase">{{ corista.voice_part }}</p>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    {{ corista.full_name | uppercase }}
+                                </p>
+                                <p class="text-[10px] text-slate-500 lowercase">@{{ corista.username }} &bull; {{ corista.voice_part }}</p>
                             </div>
                         </div>
                         <button (click)="registerManualPresence(corista.id)"
