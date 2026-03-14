@@ -47,14 +47,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     recentAttendances = computed(() => this.attendances().slice(0, 5));
 
-    // Intelligence: Show scanner only if there is an active session AND user is not present in it
+    // Intelligence: Show scanner only if there is an active session
     showScannerButton = computed(() => {
         const session = this.activeSession();
-        if (!session) return false;
-
-        // Check if user already has an attendance for this specific active session
-        const alreadyPresent = this.attendances().some(a => a.session?.id === session.id);
-        return !alreadyPresent;
+        return !!session;
     });
 
     frequencia = computed(() => {

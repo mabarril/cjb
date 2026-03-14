@@ -6,6 +6,13 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PresencaService, Session, AttendanceWithProfile } from '../../../core/presenca/presenca.service';
 
+export interface VoicePartStat {
+    label: string;
+    count: number;
+    color: string;
+    percentage: number;
+}
+
 @Component({
     selector: 'app-painel',
     standalone: true,
@@ -21,6 +28,30 @@ export class PainelComponent implements OnInit {
 
     pendingCoristas = signal<Profile[]>([]);
     isLoading = signal(true);
+
+    // Birthdays
+    selectedMonth = signal<number>(new Date().getMonth() + 1);
+    birthdays = signal<Profile[]>([]);
+    isLoadingBirthdays = signal(false);
+
+    // Coristas Stats
+    totalCoristas = signal<number>(0);
+    voicePartStats = signal<VoicePartStat[]>([]);
+    isLoadingStats = signal(false);
+
+    pieChartStyle = computed(() => {
+        const stats = this.voicePartStats();
+        if (stats.length === 0) return 'conic-gradient(#e2e8f0 0% 100%)';
+
+        let currentPercent = 0;
+        const gradientParts = stats.map(stat => {
+            const start = currentPercent;
+            currentPercent += stat.percentage;
+            return `${stat.color} ${start}% ${currentPercent}%`;
+        });
+
+        return `conic-gradient(${gradientParts.join(', ')})`;
+    });
 
     // Status counts
     counts = signal<Record<string, number>>({
@@ -59,6 +90,8 @@ export class PainelComponent implements OnInit {
         this.loadPendingCoristas();
         this.loadCounts();
         this.loadAllSessions();
+        this.loadBirthdays();
+        this.loadCoristasStats();
     }
 
     loadPendingCoristas() {
@@ -96,6 +129,87 @@ export class PainelComponent implements OnInit {
             error: (err) => {
                 console.error("Erro ao carregar sessões:", err);
                 this.checkLoadingState();
+            }
+        });
+    }
+
+    loadBirthdays() {
+        this.isLoadingBirthdays.set(true);
+        this.adminService.getCoristas().subscribe({
+            next: (coristas) => {
+                const monthStr = this.selectedMonth().toString().padStart(2, '0');
+                
+                const filtered = coristas.filter(c => {
+                    if (c.status !== 'approved' || !c.data_nascimento) return false;
+                    const parts = c.data_nascimento.split('-'); // Expected format: YYYY-MM-DD
+                    if (parts.length >= 2) {
+                        return parts[1] === monthStr;
+                    }
+                    return false;
+                }).sort((a, b) => {
+                    const dayA = parseInt(a.data_nascimento!.split('-')[2]);
+                    const dayB = parseInt(b.data_nascimento!.split('-')[2]);
+                    return dayA - dayB; // Sort by day ASC
+                });
+
+                this.birthdays.set(filtered);
+                this.isLoadingBirthdays.set(false);
+            },
+            error: (err) => {
+                console.error("Erro ao carregar aniversariantes:", err);
+                this.isLoadingBirthdays.set(false);
+            }
+        });
+    }
+
+    changeMonth(event: Event) {
+        const selectElement = event.target as HTMLSelectElement;
+        this.selectedMonth.set(parseInt(selectElement.value, 10));
+        this.loadBirthdays();
+    }
+
+    loadCoristasStats() {
+        this.isLoadingStats.set(true);
+        this.adminService.getCoristas().subscribe({
+            next: (coristas) => {
+                // Filter only approved coristas
+                const activeCoristas = coristas.filter(c => c.status === 'approved' && c.role === 'corista' && c.voice_part !== 'Regência');
+                
+                this.totalCoristas.set(activeCoristas.length);
+
+                if (activeCoristas.length === 0) {
+                    this.voicePartStats.set([]);
+                    this.isLoadingStats.set(false);
+                    return;
+                }
+
+                const counts = {
+                    'Soprano': 0,
+                    'Contralto': 0,
+                    'Tenor': 0,
+                    'Baixo': 0
+                };
+
+                activeCoristas.forEach(c => {
+                    if (c.voice_part && counts.hasOwnProperty(c.voice_part)) {
+                        counts[c.voice_part as keyof typeof counts]++;
+                    }
+                });
+
+                const total = this.totalCoristas();
+                const stats: VoicePartStat[] = [
+                    { label: 'Soprano', count: counts['Soprano'], color: '#f43f5e', percentage: (counts['Soprano'] / total) * 100 }, // Rose-500
+                    { label: 'Contralto', count: counts['Contralto'], color: '#f59e0b', percentage: (counts['Contralto'] / total) * 100 }, // Amber-500
+                    { label: 'Tenor', count: counts['Tenor'], color: '#0ea5e9', percentage: (counts['Tenor'] / total) * 100 }, // Sky-500
+                    { label: 'Baixo', count: counts['Baixo'], color: '#6366f1', percentage: (counts['Baixo'] / total) * 100 }, // Indigo-500
+                ].filter(s => s.count > 0); // Only keep parts with at least 1 person
+
+                this.voicePartStats.set(stats);
+                this.isLoadingStats.set(false);
+            },
+            error: (err) => {
+                console.error("Erro ao carregar estatísticas do coro:", err);
+                this.isLoadingStats.set(false);
             }
         });
     }
