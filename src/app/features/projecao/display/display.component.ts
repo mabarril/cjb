@@ -48,6 +48,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
                         const svgString = await QRCode.toString(session.qr_token, {
                             type: 'svg',
                             errorCorrectionLevel: 'H',
+                            margin: 2,
                             color: {
                                 dark: '#312e81',  // indigo-900
                                 light: '#00000000' // transparent background

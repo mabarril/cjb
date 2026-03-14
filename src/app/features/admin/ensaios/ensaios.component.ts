@@ -193,22 +193,24 @@ export class EnsaiosComponent implements OnInit {
             const mod = await import('qrcode');
             const QRCode = mod.default || mod;
 
-            const qrSize = 480;
+            const qrSize = 640;
             const qrDataUrl = await QRCode.toDataURL(token, {
                 width: qrSize,
-                margin: 2,
+                margin: 1,
                 color: { dark: '#000000', light: '#ffffff' }
             });
 
             const img = new Image();
             img.onload = () => {
                 // White card behind QR
-                const cardPad = 32;
+                const cardPad = 40;
                 const cardX = W / 2 - qrSize / 2 - cardPad;
-                const cardY = H / 2 - qrSize / 2 - cardPad;
+                // Shifted down slightly to avoid overlapping top text (which ends around Y=220)
+                const cardY = 260;
                 const cardW = qrSize + cardPad * 2;
                 const cardH = qrSize + cardPad * 2;
-                const r = 24;
+                const r = 32;
+
                 ctx.beginPath();
                 ctx.moveTo(cardX + r, cardY);
                 ctx.lineTo(cardX + cardW - r, cardY);
@@ -223,7 +225,8 @@ export class EnsaiosComponent implements OnInit {
                 ctx.fillStyle = '#ffffff';
                 ctx.fill();
 
-                ctx.drawImage(img, W / 2 - qrSize / 2, H / 2 - qrSize / 2, qrSize, qrSize);
+                // Draw the QR code inside the card
+                ctx.drawImage(img, cardX + cardPad, cardY + cardPad, qrSize, qrSize);
                 resolve();
             };
             img.src = qrDataUrl;

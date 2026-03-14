@@ -41,10 +41,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     totalFinalizedSessions = signal<number>(0);
-    
+
     // Faltas = Ensaios finalizados no ano - Presenças no ano
     faltas = computed(() => Math.max(0, this.totalFinalizedSessions() - this.presencas()));
-    
+
     recentAttendances = computed(() => this.attendances().slice(0, 5));
 
     // Intelligence: Show scanner only if there is an active session AND user is not present in it
@@ -198,14 +198,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     return;
                 }
 
-                const constraints:
-                    MediaStreamConstraints={
-                        video:{
-                            facingMode:{ideal:'environment'},
-                            width:{ideal:1280},
-                            height:{ideal:720}
-                         }
-                    };
+                const constraints: MediaStreamConstraints = {
+                    video: {
+                        facingMode: { ideal: 'environment' },
+                        width: { min: 1280, ideal: 1920, max: 3840 },
+                        height: { min: 720, ideal: 1080, max: 2160 }
+                    }
+                };
 
                 this.scannerControls = await this.codeReader.decodeFromConstraints(constraints, videoElement, (result, _error, controls) => {
                     if (result) {
