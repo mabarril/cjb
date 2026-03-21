@@ -221,8 +221,8 @@
           </div>
           
           <hr class="border-slate-100 dark:border-slate-800 my-4">
-          <!-- Naipe & Status -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Naipe, Status & Papel -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="edit-naipe">Naipe</label>
               <select id="edit-naipe" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.voice_part">
@@ -234,14 +234,22 @@
               </select>
             </div>
             <div>
-            <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="edit-status">Status</label>
-            <select id="edit-status" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.status">
-              <option value="approved">Aprovado</option>
-              <option value="pending">Pendente</option>
-              <option value="rejected">Inativo/Rejeitado</option>
-            </select>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="edit-status">Status</label>
+              <select id="edit-status" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.status">
+                <option value="approved">Aprovado</option>
+                <option value="pending">Pendente</option>
+                <option value="rejected">Inativo/Rejeitado</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1" for="edit-role">Papel</label>
+              <select id="edit-role" class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500" [(ngModel)]="corista.role">
+                <option value="corista">Corista</option>
+                <option value="chefe_de_naipe">Chefe de Naipe</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
           </div>
-        </div>
 
         <div class="mt-8 flex gap-3 justify-end">
           <button (click)="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Cancelar</button>

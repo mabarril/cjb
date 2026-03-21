@@ -30,6 +30,8 @@ export class PainelComponent implements OnInit {
     isLoading = signal(true);
     showManualModal = signal(false);
     searchQuery = signal('');
+    filterNaipe = signal<string>('');
+    isAdmin = signal<boolean>(false);
     allActiveCoristas = signal<Profile[]>([]);
 
     // Birthdays
@@ -81,21 +83,28 @@ export class PainelComponent implements OnInit {
         const active = this.allActiveCoristas();
         const currentAttendeesIds = this.attendees().map(a => a.user_id);
         const query = this.searchQuery().toLowerCase();
+        const naipe = this.filterNaipe();
 
         return active
             .filter(c => !currentAttendeesIds.includes(c.id))
             .filter(c => 
-                c.username.toLowerCase().includes(query) || 
-                c.full_name?.toLowerCase().includes(query)
+                (c.username.toLowerCase().includes(query) || 
+                 c.full_name?.toLowerCase().includes(query)) &&
+                (naipe === '' || c.voice_part === naipe)
             );
     });
 
     ngOnInit() {
-        // Check if user is actually admin
+        // Check if user is actually admin or chefe_de_naipe
         this.supabaseService.profile$.subscribe(profile => {
-            if (profile && profile.role !== 'admin') {
+            if (profile && (profile.role !== 'admin' && profile.role !== 'chefe_de_naipe')) {
                 this.router.navigate(['/dashboard']);
-            } else if (profile && profile.role === 'admin') {
+            } else if (profile && (profile.role === 'admin' || profile.role === 'chefe_de_naipe')) {
+                const isAdmin = profile.role === 'admin';
+                this.isAdmin.set(isAdmin);
+                if (!isAdmin) {
+                    this.selectedStatus.set('ativo');
+                }
                 this.loadData();
             }
         });
@@ -272,6 +281,7 @@ export class PainelComponent implements OnInit {
 
     openManualModal() {
         this.searchQuery.set('');
+        this.filterNaipe.set('');
         this.showManualModal.set(true);
     }
 

@@ -43,13 +43,13 @@
                             <span class="material-symbols-outlined">event_note</span>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100">Gerenciar Ensaios</h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Criar, editar e ativar sessões e
-                                QR Codes.</p>
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100">Visão de Ensaios</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Sessões, permissões e registros de presença.</p>
                         </div>
                     </div>
                 </button>
 
+                @if(isAdmin()) {
                 <!-- Gerenciar Coristas Card -->
                 <button (click)="goToCoristas()"
                     class="group relative bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-emerald-500/30 transition-all text-left overflow-hidden">
@@ -67,6 +67,7 @@
                         </div>
                     </div>
                 </button>
+                }
             </div>
         </section>
 
@@ -74,6 +75,7 @@
         <section>
             <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-4 px-1">Resumo de Chamadas</h2>
             <div class="grid grid-cols-3 gap-3 sm:gap-4">
+                @if(isAdmin()) {
                 <!-- Agendados -->
                 <button (click)="selectStatus('agendado')"
                     [ngClass]="selectedStatus() === 'agendado' ? 'ring-2 ring-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'bg-white dark:bg-slate-900'"
@@ -82,6 +84,7 @@
                     <span
                         class="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Agendados</span>
                 </button>
+                }
 
                 <!-- Ativos -->
                 <button (click)="selectStatus('ativo')"
@@ -92,6 +95,7 @@
                         class="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Ativos</span>
                 </button>
 
+                @if(isAdmin()) {
                 <!-- Encerrados -->
                 <button (click)="selectStatus('finalizado')"
                     [ngClass]="selectedStatus() === 'finalizado' ? 'ring-2 ring-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'bg-white dark:bg-slate-900'"
@@ -100,6 +104,7 @@
                     <span
                         class="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Encerrados</span>
                 </button>
+                }
             </div>
         </section>
 
@@ -333,6 +338,7 @@
             </div>
         </section>
 
+        @if(isAdmin()) {
         <!-- Solicitações Pendentes -->
         <section>
             <div
@@ -390,6 +396,7 @@
             </div>
             }
         </section>
+        }
     </main>
 
     <!-- Modal Presença Manual -->
@@ -407,15 +414,26 @@
                 </button>
             </div>
 
-            <!-- Search -->
-            <div class="p-4 border-b border-slate-100 dark:border-slate-800">
-                <div class="relative flex items-center">
+            <!-- Search & Filter -->
+            <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1 flex items-center">
                     <span class="material-symbols-outlined absolute left-3 text-slate-400">search</span>
                     <input type="text" 
                            [value]="searchQuery()" 
                            (input)="searchQuery.set($any($event.target).value)"
                            placeholder="Buscar corista..." 
                            class="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/50 outline-none">
+                </div>
+                <div class="w-full sm:w-40 shrink-0">
+                    <select [value]="filterNaipe()" (change)="filterNaipe.set($any($event.target).value)"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-xl text-sm p-2 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-indigo-500/50 outline-none">
+                        <option value="">Todos os Naipes</option>
+                        <option value="Soprano">Soprano</option>
+                        <option value="Contralto">Contralto</option>
+                        <option value="Tenor">Tenor</option>
+                        <option value="Baixo">Baixo</option>
+                        <option value="Regência">Regência</option>
+                    </select>
                 </div>
             </div>
 

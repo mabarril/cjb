@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PresencaService, Session, SessionFormData } from '../../../core/presenca/presenca.service';
+import { SupabaseService } from '../../../core/supabase/supabase.service';
 import { UppercaseDirective } from '../../../core/directives/uppercase.directive';
 
 @Component({
@@ -13,6 +14,7 @@ import { UppercaseDirective } from '../../../core/directives/uppercase.directive
 })
 export class EnsaiosComponent implements OnInit {
     private presencaService = inject(PresencaService);
+    private supabaseService = inject(SupabaseService);
     private router = inject(Router);
     private fb = inject(FormBuilder);
 
@@ -32,7 +34,13 @@ export class EnsaiosComponent implements OnInit {
     });
 
     ngOnInit() {
-        this.loadSessions();
+        this.supabaseService.profile$.subscribe(profile => {
+            if (profile?.role !== 'admin') {
+                this.router.navigate(['/admin']);
+            } else {
+                this.loadSessions();
+            }
+        });
     }
 
     loadSessions() {

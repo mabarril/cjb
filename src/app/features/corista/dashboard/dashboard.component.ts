@@ -21,7 +21,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
 
     profile = signal<Profile | null>(null);
-    isAdmin = computed(() => this.profile()?.role === 'admin');
+    isAdmin = computed(() => this.profile()?.role === 'admin' || this.profile()?.role === 'chefe_de_naipe');
     accessDenied = signal(false);
     isLoading = signal(true);
     isStatsLoading = signal(true);
@@ -47,10 +47,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     recentAttendances = computed(() => this.attendances().slice(0, 5));
 
-    // Intelligence: Show scanner only if there is an active session
+    // Scanner feature disabled for everyone as requested
     showScannerButton = computed(() => {
-        const session = this.activeSession();
-        return !!session;
+        return false;
     });
 
     frequencia = computed(() => {

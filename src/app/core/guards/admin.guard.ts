@@ -12,7 +12,7 @@ export const adminGuard: CanActivateFn = () => {
         filter(profile => profile !== null),
         take(1),
         map(profile => {
-            if (profile?.role === 'admin') {
+            if (profile?.role === 'admin' || profile?.role === 'chefe_de_naipe') {
                 return true;
             }
             // Redirect coristas to their dashboard with an access denied flag

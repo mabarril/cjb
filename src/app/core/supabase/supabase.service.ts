@@ -14,7 +14,7 @@ export interface Profile {
     endereco?: string | null;
     celular?: string | null;
     voice_part: 'Soprano' | 'Contralto' | 'Tenor' | 'Baixo' | 'Regência' | null;
-    role: 'corista' | 'admin';
+    role: 'corista' | 'admin' | 'chefe_de_naipe';
     status: 'pending' | 'approved' | 'rejected';
     avatar_url: string | null;
 }
