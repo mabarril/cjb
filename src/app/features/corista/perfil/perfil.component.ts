@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService, Profile } from '../../../core/supabase/supabase.service';
@@ -19,6 +19,7 @@ export class PerfilComponent implements OnInit {
     private router = inject(Router);
 
     profile = signal<Profile | null>(null);
+    isAdmin = computed(() => this.profile()?.role === 'admin' || this.profile()?.role === 'chefe_de_naipe');
     isLoading = signal(true);
     isSaving = signal(false);
     isChangingPassword = signal(false);
@@ -69,6 +70,10 @@ export class PerfilComponent implements OnInit {
     
     goToAgenda() {
         this.router.navigate(['/agenda']);
+    }
+
+    goToAdmin() {
+        this.router.navigate(['/admin']);
     }
 
     onFileSelected(event: any) {

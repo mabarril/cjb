@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -19,6 +19,15 @@ export class EnsaiosComponent implements OnInit {
     private fb = inject(FormBuilder);
 
     sessions = signal<Session[]>([]);
+    statusFilter = signal<'ativos' | 'finalizados' | 'todos'>('ativos');
+
+    filteredSessions = computed(() => {
+        const filter = this.statusFilter();
+        const all = this.sessions();
+        if (filter === 'todos') return all;
+        if (filter === 'finalizados') return all.filter(s => s.status === 'finalizado');
+        return all.filter(s => s.status === 'agendado' || s.status === 'ativo');
+    });
     isLoading = signal(true);
     isSaving = signal(false);
     showModal = signal(false);
@@ -31,6 +40,7 @@ export class EnsaiosComponent implements OnInit {
         location: ['', [Validators.required]],
         scheduled_at: ['', [Validators.required]],
         end_at: [''],
+        info: [''],
     });
 
     ngOnInit() {
@@ -70,6 +80,7 @@ export class EnsaiosComponent implements OnInit {
             location: session.location,
             scheduled_at: this.toDatetimeLocal(session.scheduled_at),
             end_at: session.end_at ? this.toDatetimeLocal(session.end_at) : '',
+            info: session.info || '',
         });
         this.showModal.set(true);
     }
@@ -91,6 +102,7 @@ export class EnsaiosComponent implements OnInit {
             location: raw.location,
             scheduled_at: new Date(raw.scheduled_at).toISOString(),
             end_at: raw.end_at ? new Date(raw.end_at).toISOString() : null,
+            info: raw.info ? raw.info.toUpperCase() : null,
         };
 
         const editing = this.editingSession();

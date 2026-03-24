@@ -12,6 +12,7 @@ export interface Session {
     status: 'agendado' | 'ativo' | 'finalizado';
     qr_token: string;
     created_at?: string;
+    info?: string | null;
 }
 
 export interface SessionFormData {
@@ -19,6 +20,7 @@ export interface SessionFormData {
     location: string;
     scheduled_at: string;
     end_at?: string | null;
+    info?: string | null;
 }
 
 export interface AttendanceWithSession {
@@ -79,6 +81,26 @@ export class PresencaService {
         );
     }
 
+    getAgendaSessions(includePast: boolean): Observable<Session[]> {
+        let query = this.supabaseService.client
+            .from('sessions')
+            .select('*')
+            .order('scheduled_at', { ascending: true });
+            
+        if (!includePast) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            query = query.gte('scheduled_at', today.toISOString()).in('status', ['agendado', 'ativo']);
+        }
+        
+        return from(
+            query.then(res => {
+                if (res.error) throw res.error;
+                return res.data as Session[];
+            })
+        );
+    }
+
     createSession(data: SessionFormData): Observable<Session> {
         return from(
             this.supabaseService.client
@@ -88,6 +110,7 @@ export class PresencaService {
                     location: data.location,
                     scheduled_at: data.scheduled_at,
                     end_at: data.end_at || null,
+                    info: data.info || null,
                     status: 'agendado',
                     qr_token: crypto.randomUUID()
                 })
@@ -109,6 +132,7 @@ export class PresencaService {
                     location: data.location,
                     scheduled_at: data.scheduled_at,
                     end_at: data.end_at || null,
+                    info: data.info || null,
                 })
                 .eq('id', id)
                 .select()

@@ -255,6 +255,14 @@
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
                 <span class="text-[10px] font-medium">Perfil</span>
             </button>
+            @if(isAdmin()) {
+            <button (click)="goToAdmin()"
+                class="flex flex-col items-center gap-1 text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 w-16 transition-colors">
+                <span class="material-symbols-outlined"
+                    style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+                <span class="text-[10px] font-medium">Admin</span>
+            </button>
+            }
         </div>
     </nav>
 </div>

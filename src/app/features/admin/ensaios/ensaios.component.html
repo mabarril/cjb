@@ -53,7 +53,14 @@
     @if(!isLoading()) {
     <main class="px-4 py-6 space-y-4 max-w-2xl mx-auto">
 
-        @if(sessions().length === 0) {
+        <!-- Status Filter -->
+        <div class="flex gap-2 p-1 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl mb-6">
+            <button (click)="statusFilter.set('ativos')" [ngClass]="{'bg-white dark:bg-slate-700 shadow-sm text-violet-700 dark:text-violet-400': statusFilter() === 'ativos', 'text-slate-500': statusFilter() !== 'ativos'}" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all">Ativos/Agendados</button>
+            <button (click)="statusFilter.set('finalizados')" [ngClass]="{'bg-white dark:bg-slate-700 shadow-sm text-violet-700 dark:text-violet-400': statusFilter() === 'finalizados', 'text-slate-500': statusFilter() !== 'finalizados'}" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all">Finalizados</button>
+            <button (click)="statusFilter.set('todos')" [ngClass]="{'bg-white dark:bg-slate-700 shadow-sm text-violet-700 dark:text-violet-400': statusFilter() === 'todos', 'text-slate-500': statusFilter() !== 'todos'}" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all">Todos</button>
+        </div>
+
+        @if(filteredSessions().length === 0) {
         <div class="text-center py-20 text-slate-400">
             <span class="material-symbols-outlined text-6xl mb-3 block">event_note</span>
             <p class="text-lg font-medium">Nenhum ensaio cadastrado</p>
@@ -61,7 +68,7 @@
         </div>
         }
 
-        @for(session of sessions(); track session.id) {
+        @for(session of filteredSessions(); track session.id) {
         <div
             class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-5 space-y-4">
 
@@ -203,6 +210,13 @@
                         <input formControlName="end_at" type="datetime-local"
                             class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500">
                     </div>
+                </div>
+
+                <!-- Info (Optional) -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Informações Adicionais (Opcional)</label>
+                    <textarea formControlName="info" rows="3" placeholder="Ex: Traje oficial completo, avisos gerais..." appUppercase
+                              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"></textarea>
                 </div>
 
                 <!-- Submit -->
