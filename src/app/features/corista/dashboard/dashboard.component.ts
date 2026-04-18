@@ -25,9 +25,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
     accessDenied = signal(false);
     isLoading = signal(true);
     isStatsLoading = signal(true);
+    private statsLoadingRequests = 0;
 
     // Real attendance data
     attendances = signal<AttendanceWithSession[]>([]);
+    sessionsThisYear = signal<Session[]>([]);
     activeSession = signal<Session | null>(null);
 
     // Computed stats from real data
@@ -40,12 +42,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }).length;
     });
 
-    totalFinalizedSessions = signal<number>(0);
+    totalFinalizedSessions = computed(() => this.sessionsThisYear().length);
 
-    // Faltas = Ensaios finalizados no ano - Presenças no ano
-    faltas = computed(() => Math.max(0, this.totalFinalizedSessions() - this.presencas()));
+    sessionHistory = computed(() => {
+        const attendancesBySession = new Map<string, AttendanceWithSession>();
 
-    recentAttendances = computed(() => this.attendances().slice(0, 5));
+        this.attendances().forEach(att => {
+            if (att.session?.id) {
+                attendancesBySession.set(att.session.id, att);
+            }
+        });
+
+        return this.sessionsThisYear()
+            .map(session => ({
+                session,
+                attendance: attendancesBySession.get(session.id) ?? null
+            }))
+            .sort((a, b) => new Date(b.session.scheduled_at).getTime() - new Date(a.session.scheduled_at).getTime());
+    });
+
+    faltas = computed(() => this.sessionHistory().filter(item => item.attendance?.status !== 'presente').length);
 
     // Scanner feature disabled for everyone as requested
     showScannerButton = computed(() => {
@@ -85,10 +101,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 if (prof.status === 'pending' || prof.status === 'rejected') {
                     this.router.navigate(['/login']);
                 } else {
-                    this.profile.set(prof);
+                                this.profile.set(prof);
                     this.isLoading.set(false);
                     // Load real data and subscribe to realtime
-                    this.loadTotalFinalizedSessions();
+                    this.loadFinalizedSessions();
                     this.loadAttendances(prof.id);
                     this.loadActiveSession();
                     this.subscribeToAttendances(prof.id);
@@ -98,23 +114,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
         });
     }
 
-    private loadAttendances(userId: string) {
+    private beginStatsLoading() {
+        this.statsLoadingRequests++;
         this.isStatsLoading.set(true);
+    }
+
+    private endStatsLoading() {
+        this.statsLoadingRequests = Math.max(0, this.statsLoadingRequests - 1);
+        if (this.statsLoadingRequests === 0) {
+            this.isStatsLoading.set(false);
+        }
+    }
+
+    private loadAttendances(userId: string) {
+        this.beginStatsLoading();
         this.presencaService.getUserAttendances(userId).subscribe({
             next: (data) => {
                 this.attendances.set(data);
-                this.isStatsLoading.set(false);
+                this.endStatsLoading();
             },
             error: (err) => {
                 console.error('Erro ao carregar histórico:', err);
-                this.isStatsLoading.set(false);
+                this.endStatsLoading();
             }
         });
     }
 
-    private loadTotalFinalizedSessions() {
-        this.presencaService.getFinalizedSessionsCountThisYear().subscribe(count => {
-            this.totalFinalizedSessions.set(count);
+    private loadFinalizedSessions() {
+        this.beginStatsLoading();
+        this.presencaService.getFinalizedSessionsThisYear().subscribe({
+            next: (sessions) => {
+                this.sessionsThisYear.set(sessions);
+                this.endStatsLoading();
+            },
+            error: (err) => {
+                console.error('Erro ao carregar ensaios finalizados e ativos:', err);
+                this.endStatsLoading();
+            }
         });
     }
 
@@ -144,7 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 },
                 () => {
                     this.loadActiveSession();
-                    this.loadTotalFinalizedSessions(); // Se uma sessão for finalizada, atualiza o count
+                    this.loadFinalizedSessions(); // Se uma sessão for finalizada, atualiza a lista
                 }
             )
             .subscribe();

@@ -131,58 +131,60 @@
         </section>
 
 
-        <!-- Histórico Recente -->
+        <!-- Histórico de Ensaios -->
         <section>
             <div class="flex justify-between items-center mb-4 px-1">
-                <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Últimos Ensaios</h2>
-                <span class="text-xs text-slate-400">{{ presencas() }} de {{ totalFinalizedSessions() }} ensaios</span>
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Histórico de Ensaios</h2>
+                    <p class="text-xs text-slate-400">Lista única em ordem de data. Presença em verde; falta em vermelho.</p>
+                </div>
+                <span class="text-xs text-slate-400">{{ presencas() }} de {{ totalFinalizedSessions() }} presentes</span>
             </div>
 
             <div class="space-y-3">
                 @if(isStatsLoading()) {
                 <!-- Skeleton Loaders -->
-                @for(i of [1,2,3]; track i) {
+                @for(i of [1,2,3,4]; track i) {
                 <div
                     class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-100 dark:border-slate-800 flex items-center gap-4 animate-pulse">
                     <div class="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-full shrink-0"></div>
                     <div class="flex-1 space-y-2">
                         <div class="h-3.5 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
-                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                        <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
                     </div>
                     <div class="w-16 h-6 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
                 </div>
                 }
                 }
 
-                @if(!isStatsLoading() && recentAttendances().length === 0) {
+                @if(!isStatsLoading() && sessionHistory().length === 0) {
                 <div class="text-center py-8 text-slate-400">
                     <span class="material-symbols-outlined text-4xl mb-2 block">event_available</span>
-                    <p class="text-sm">Nenhum ensaio registrado ainda.</p>
+                    <p class="text-sm">Nenhum ensaio finalizado registrado ainda.</p>
                 </div>
                 }
 
-                @for(att of recentAttendances(); track att.id) {
+                @for(item of sessionHistory(); track item.session.id) {
                 <div
                     class="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:border-primary/30 transition-colors">
                     <div class="flex items-center gap-4">
-                        <div [ngClass]="att.status === 'presente'
+                        <div [ngClass]="item.attendance?.status === 'presente'
                             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
                             : 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'"
                             class="w-10 h-10 rounded-full flex items-center justify-center shrink-0">
-                            <span class="material-symbols-outlined text-[20px]">{{ att.status === 'presente' ? 'check' :
-                                'close' }}</span>
+                            <span class="material-symbols-outlined text-[20px]">{{ item.attendance?.status === 'presente' ? 'check' : 'close' }}</span>
                         </div>
                         <div>
-                            <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">{{ (att.session?.title ??
-                                'Ensaio') | uppercase }}</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ att.scanned_at | date:'EEEE,
-                                dd MMM · HH:mm':'':'pt' }}</p>
+                            <p class="font-bold text-slate-900 dark:text-slate-100 text-sm">{{ item.session.title | uppercase }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{{ item.session.scheduled_at | date:'EEEE, dd MMM yyyy · HH:mm':'':'pt' }}</p>
                         </div>
                     </div>
-                    <span [ngClass]="att.status === 'presente'
+                    <span [ngClass]="item.attendance?.status === 'presente'
                         ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
                         : 'text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20'"
-                        class="text-xs font-semibold px-2.5 py-1 rounded-lg capitalize">{{ att.status | uppercase }}</span>
+                        class="text-xs font-semibold px-2.5 py-1 rounded-lg uppercase">
+                        {{ item.attendance?.status === 'presente' ? 'PRESENTE' : 'FALTA' }}
+                    </span>
                 </div>
                 }
             </div>

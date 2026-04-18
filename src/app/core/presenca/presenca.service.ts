@@ -388,4 +388,24 @@ export class PresencaService {
                 .then(res => res.count || 0)
         );
     }
+
+    getFinalizedSessionsThisYear(): Observable<Session[]> {
+        const currentYear = new Date().getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1).toISOString();
+        const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59).toISOString();
+
+        return from(
+            this.supabaseService.client
+                .from('sessions')
+                .select('id, title, scheduled_at, status')
+                .in('status', ['finalizado', 'ativo'])
+                .gte('scheduled_at', startOfYear)
+                .lte('scheduled_at', endOfYear)
+                .order('scheduled_at', { ascending: false })
+                .then(res => {
+                    if (res.error) throw res.error;
+                    return res.data as Session[];
+                })
+        );
+    }
 }
