@@ -144,6 +144,23 @@ export class EnsaiosComponent implements OnInit {
         });
     }
 
+    delete(session: Session) {
+        const ok = confirm(`Deseja realmente excluir o ensaio "${session.title}"? Esta ação não pode ser desfeita.`);
+        if (!ok) return;
+        this.isSaving.set(true);
+        this.presencaService.deleteSession(session.id).subscribe({
+            next: () => {
+                this.isSaving.set(false);
+                this.loadSessions();
+                this.showSuccess('Ensaio excluído com sucesso.');
+            },
+            error: (err) => {
+                this.isSaving.set(false);
+                this.showError('Erro ao excluir: ' + err.message);
+            }
+        });
+    }
+
     downloadQR(session: Session) {
         // Canvas Full HD 16:9
         const W = 1920;

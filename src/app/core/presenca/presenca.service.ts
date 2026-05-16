@@ -177,6 +177,23 @@ export class PresencaService {
         );
     }
 
+    deleteSession(id: string): Observable<void> {
+        return from(
+            // First remove any attendances linked to the session, then delete the session itself
+            this.supabaseService.client
+                .from('attendances')
+                .delete()
+                .eq('session_id', id)
+                .then(async () => {
+                    const res = await this.supabaseService.client
+                        .from('sessions')
+                        .delete()
+                        .eq('id', id);
+                    if (res.error) throw res.error;
+                })
+        );
+    }
+
 
 
     // --- Funções do Regente/Admin ---
